@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Daisy Content Studio — Team</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal:#1D9E75; --teal-dark:#0F6E56; --teal-light:#E8F7F2;
+      --gold:#E8A800; --gold-light:#FFF8E1;
+      --purple:#534AB7; --blue:#185FA5;
+      --orange:#D85A30; --orange-light:#FFF0EB;
+      --red:#C62828; --red-light:#FFF0F0;
+      --bg:#F5F8F6; --surface:#FFFFFF;
+      --border:#DDE8E4; --border-light:#EEF4F1;
+      --text:#1A2E26; --text-2:#4A6358; --text-3:#8FA89F;
+      --ki:#0F6E56; --ki-bg:#E8F7F2; --ki-border:#9ED6C0;
+      --daisy:#185FA5; --daisy-bg:#EEF4FB; --daisy-border:#9FC3E8;
+    }
+    body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; max-width:680px; margin:0 auto; }
+
+    /* ── Header ── */
+    header {
+      background:var(--teal-dark); color:white;
+      padding:16px 20px 12px; position:sticky; top:0; z-index:100;
+      box-shadow:0 2px 12px rgba(15,110,86,0.25);
+    }
+    .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .header-brand { display:flex; align-items:center; gap:10px; }
+    .logo { width:28px; height:28px; }
+    .header-title { font-size:1rem; font-weight:800; letter-spacing:-0.02em; }
+    .header-sub { font-size:0.68rem; opacity:0.6; margin-top:1px; }
+    .week-banner { background:rgba(255,255,255,0.12); border-radius:8px; padding:7px 12px; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; }
+    .week-theme { font-weight:700; }
+    .week-date { opacity:0.7; font-size:0.7rem; }
+
+    /* ── Bottom nav ── */
+    nav {
+      position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+      width:100%; max-width:680px;
+      background:var(--surface); border-top:1px solid var(--border);
+      display:flex; z-index:100;
+      box-shadow:0 -2px 12px rgba(0,0,0,0.08);
+    }
+    .nav-btn {
+      flex:1; padding:10px 6px 12px; text-align:center;
+      font-size:0.7rem; font-weight:600; color:var(--text-3);
+      cursor:pointer; border:none; background:none; font-family:inherit;
+      transition:color 0.15s;
+    }
+    .nav-btn .nav-icon { display:block; font-size:1.3rem; margin-bottom:2px; line-height:1; }
+    .nav-btn.active { color:var(--teal-dark); }
+    .nav-btn.active .nav-dot { display:inline-block; width:4px; height:4px; background:var(--teal); border-radius:50%; vertical-align:middle; margin-left:3px; }
+
+    /* ── Pages ── */
+    .page { display:none; padding:16px 16px 90px; }
+    .page.active { display:block; }
+
+    /* ── Day strip (week view) ── */
+    .day-strip { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; scrollbar-width:none; }
+    .day-strip::-webkit-scrollbar { display:none; }
+    .day-pill {
+      flex-shrink:0; text-align:center; padding:8px 12px; border-radius:10px;
+      background:var(--surface); border:1.5px solid var(--border);
+      cursor:pointer; min-width:52px; transition:all 0.15s;
+    }
+    .day-pill.active { background:var(--teal-dark); border-color:var(--teal-dark); color:white; }
+    .day-pill.today { border-color:var(--teal); }
+    .day-pill-day { font-size:0.62rem; font-weight:700; text-transform:uppercase; opacity:0.6; }
+    .day-pill.active .day-pill-day { opacity:0.75; color:white; }
+    .day-pill-num { font-size:1.1rem; font-weight:800; line-height:1.1; }
+    .day-pill-dot { display:flex; gap:3px; justify-content:center; margin-top:3px; }
+    .dot { width:5px; height:5px; border-radius:50%; }
+    .dot.ki { background:var(--ki); }
+    .dot.daisy { background:var(--daisy); }
+    .dot.empty { background:var(--border); }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size:0.65rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.07em; color:var(--text-3); margin-bottom:8px;
+    }
+
+    /* ── Brief card ── */
+    .brief-card {
+      background:var(--surface); border-radius:14px; overflow:hidden;
+      box-shadow:0 2px 10px rgba(15,110,86,0.07);
+      margin-bottom:14px; border:1px solid var(--border);
+    }
+    .brief-card.ki-card { border-color:var(--ki-border); }
+    .brief-card.daisy-card { border-color:var(--daisy-border); }
+    .brief-card.empty-card { opacity:0.5; border-style:dashed; }
+
+    .card-header {
+      padding:12px 16px 10px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .card-header.ki   { background:var(--ki-bg); }
+    .card-header.daisy { background:var(--daisy-bg); }
+
+    .brand-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;
+      padding:3px 8px; border-radius:6px; flex-shrink:0;
+    }
+    .brand-badge.ki   { background:var(--ki);   color:white; }
+    .brand-badge.daisy { background:var(--daisy); color:white; }
+
+    .card-format-chips { display:flex; gap:4px; flex-wrap:wrap; }
+    .fmt-chip {
+      font-size:0.62rem; font-weight:600; padding:2px 7px; border-radius:5px;
+      white-space:nowrap;
+    }
+    .fmt-chip.video    { background:#F0EEFF; color:var(--purple); }
+    .fmt-chip.carousel { background:#FFF8E1; color:#9A6F00; }
+    .fmt-chip.article  { background:var(--teal-light); color:var(--teal-dark); }
+    .fmt-chip.tiktok   { background:#F0EEFF; color:var(--purple); }
+    .fmt-chip.instagram { background:#FFF0F8; color:#C2185B; }
+    .fmt-chip.red      { background:#FFF0F0; color:var(--red); }
+    .fmt-chip.facebook { background:#EEF4FB; color:var(--blue); }
+    .fmt-chip.yt       { background:#FFF3E0; color:#E65100; }
+    .fmt-chip.web      { background:var(--teal-light); color:var(--teal-dark); }
+
+    .card-concept {
+      padding:12px 16px 8px;
+      font-size:1rem; font-weight:700; line-height:1.35;
+      color:var(--text);
+    }
+    .card-hook {
+      padding:0 16px 12px;
+      font-size:0.82rem; color:var(--text-2); line-height:1.4;
+      font-style:italic;
+    }
+    .card-hook::before { content:'💬 Hook: '; font-weight:700; font-style:normal; color:var(--teal-dark); }
+
+    /* ── Card tabs ── */
+    .card-tabs { display:flex; border-top:1px solid var(--border-light); border-bottom:1px solid var(--border-light); }
+    .card-tab {
+      flex:1; padding:9px; text-align:center; font-size:0.75rem; font-weight:600;
+      color:var(--text-3); cursor:pointer; border:none; background:none;
+      font-family:inherit; transition:all 0.15s; border-bottom:2px solid transparent;
+    }
+    .card-tab.active { color:var(--teal-dark); border-bottom-color:var(--teal); background:var(--teal-light); }
+
+    /* ── Card body ── */
+    .card-body { padding:14px 16px; }
+    .card-panel { display:none; }
+    .card-panel.active { display:block; }
+
+    /* ── Shoot body elements ── */
+    .beats-table { width:100%; border-collapse:collapse; font-size:0.77rem; margin-bottom:14px; }
+    .beats-table th { text-align:left; padding:6px 8px; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); border-bottom:1px solid var(--border); }
+    .beats-table td { padding:7px 8px; border-bottom:1px solid var(--border-light); vertical-align:top; }
+    .beats-table tr:last-child td { border-bottom:none; }
+    .beat-time { white-space:nowrap; color:var(--text-3); font-size:0.7rem; font-weight:600; }
+    .beat-text { font-weight:700; color:var(--text); }
+    .beat-visual { color:var(--text-2); font-size:0.73rem; }
+
+    .subsection-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-3); margin-bottom:7px; margin-top:14px; }
+    .subsection-label:first-child { margin-top:0; }
+
+    .checklist { list-style:none; display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+    .checklist li { display:flex; gap:8px; align-items:flex-start; font-size:0.8rem; line-height:1.4; color:var(--text-2); }
+    .checklist li::before { content:'□'; font-size:1rem; line-height:1.1; flex-shrink:0; color:var(--text-3); }
+    .checklist li.note::before { content:'⚡'; font-size:0.75rem; }
+    .checklist li.warning::before { content:'🚫'; font-size:0.75rem; }
+
+    .music-box { background:var(--gold-light); border:1px solid var(--gold); border-radius:8px; padding:9px 12px; font-size:0.77rem; color:var(--text-2); margin-top:10px; }
+    .music-box::before { content:'🎵 '; }
+
+    /* ── Post body elements ── */
+    .platform-caption { margin-bottom:12px; }
+    .platform-label { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+    .platform-name { font-size:0.67rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); }
+    .copy-btn {
+      font-size:0.67rem; font-weight:700; color:var(--teal-dark);
+      background:var(--teal-light); border:1px solid var(--teal);
+      border-radius:5px; padding:3px 9px; cursor:pointer; font-family:inherit;
+      transition:all 0.15s; flex-shrink:0;
+    }
+    .copy-btn:active { background:var(--teal); color:white; }
+    .copy-btn.copied { background:var(--teal); color:white; }
+    .caption-box {
+      background:var(--bg); border:1px solid var(--border); border-radius:8px;
+      padding:10px 12px; font-size:0.8rem; line-height:1.55; color:var(--text-2);
+      white-space:pre-wrap; word-break:break-word;
+    }
+
+    /* ── Empty brief card ── */
+    .empty-brief {
+      padding:20px 16px; text-align:center;
+      font-size:0.82rem; color:var(--text-3); line-height:1.5;
+    }
+    .empty-brief .empty-icon { font-size:2rem; margin-bottom:8px; display:block; }
+
+    /* ── Brand guide ── */
+    .brand-guide-section { margin-bottom:24px; }
+    .brand-guide-header {
+      border-radius:12px 12px 0 0; padding:14px 16px;
+      font-size:1rem; font-weight:800; color:white;
+    }
+    .brand-guide-header.ki { background:var(--ki); }
+    .brand-guide-header.daisy { background:var(--daisy); }
+    .brand-guide-body { background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; padding:16px; }
+    .brand-guide-body + .brand-guide-body { border-top:none; }
+
+    .rule-block { margin-bottom:14px; }
+    .rule-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-3); margin-bottom:5px; }
+    .rule-text { font-size:0.82rem; color:var(--text-2); line-height:1.5; }
+
+    .do-dont { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+    .do-col { background:#E8F7F2; border-radius:8px; padding:10px; }
+    .dont-col { background:#FFF0F0; border-radius:8px; padding:10px; }
+    .do-col .col-label { font-size:0.65rem; font-weight:800; color:var(--teal-dark); margin-bottom:5px; }
+    .dont-col .col-label { font-size:0.65rem; font-weight:800; color:var(--red); margin-bottom:5px; }
+    .do-col ul, .dont-col ul { list-style:none; display:flex; flex-direction:column; gap:4px; }
+    .do-col li, .dont-col li { font-size:0.75rem; line-height:1.4; color:var(--text-2); }
+    .do-col li::before { content:'✓ '; color:var(--teal-dark); font-weight:700; }
+    .dont-col li::before { content:'✗ '; color:var(--red); font-weight:700; }
+
+    .platform-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+    .pt-tag { font-size:0.7rem; font-weight:700; padding:3px 8px; border-radius:6px; }
+    .pt-tag.tiktok { background:#F0EEFF; color:var(--purple); }
+    .pt-tag.ig { background:#FFF0F8; color:#C2185B; }
+    .pt-tag.yt { background:#FFF3E0; color:#E65100; }
+    .pt-tag.red { background:#FFF0F0; color:var(--red); }
+    .pt-tag.fb { background:#EEF4FB; color:var(--blue); }
+    .pt-tag.web { background:var(--teal-light); color:var(--teal-dark); }
+
+    .workflow-steps { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+    .wf-step { display:flex; gap:10px; align-items:flex-start; font-size:0.8rem; color:var(--text-2); line-height:1.4; }
+    .wf-num { width:24px; height:24px; border-radius:50%; background:var(--teal-dark); color:white; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:800; flex-shrink:0; }
+
+    .approval-box { background:var(--orange-light); border:1px solid var(--orange); border-radius:8px; padding:11px 14px; font-size:0.8rem; color:var(--text-2); line-height:1.5; margin-top:14px; }
+    .approval-box strong { color:var(--orange); }
+
+    footer { height:10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-brand">
+      <svg class="logo" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.12)"/>
+        <circle cx="18" cy="18" r="5" fill="#E8A800"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(0 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(45 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(90 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(135 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(180 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(225 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(270 18 18)"/>
+        <ellipse cx="18" cy="8" rx="3" ry="5" fill="white" opacity="0.9" transform="rotate(315 18 18)"/>
+      </svg>
+      <div>
+        <div class="header-title">Content Studio</div>
+        <div class="header-sub" id="headerSub">Team Brief</div>
+      </div>
+    </div>
+  </div>
+  <div class="week-banner" id="weekBanner">
+    <span class="week-theme" id="weekTheme">Summer Camp 🌊</span>
+    <span class="week-date" id="weekDateRange">22–26 Jun 2026</span>
+  </div>
+</header>
+
+<!-- PAGES -->
+<div class="page active" id="page-today"></div>
+<div class="page" id="page-week"></div>
+<div class="page" id="page-guide"></div>
+
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="nav-btn active" onclick="showPage('today',this)">
+    <span class="nav-icon">📋</span>Today
+  </button>
+  <button class="nav-btn" onclick="showPage('week',this)">
+    <span class="nav-icon">📅</span>Week
+  </button>
+  <button class="nav-btn" onclick="showPage('guide',this)">
+    <span class="nav-icon">🎬</span>How to Shoot
+  </button>
+</nav>
+
+<footer></footer>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────
+const WEEK_THEME = { theme:"Summer Camp 🌊", dates:"22–26 Jun 2026" };
+
+const BRIEFS = [
+  // ─── JUN 22 ───
+  {
+    id:"2026-06-22-ki", date:"2026-06-22", slot:"ki",
+    format:"video", platforms:["tiktok","instagram","youtube-shorts"],
+    concept:"เล่นน้ำไม่ใช่แค่สนุก\nนี่คือสิ่งที่สมองลูกกำลังทำอยู่",
+    hook:"รู้ไหมว่าตอนลูกเล่นน้ำ สมองกำลังทำงานหนักแค่ไหน? 🧠💧",
+    beats:[
+      { time:"0–2s", text:"เล่นน้ำ = สมองทำงาน", visual:"มือเด็กเทน้ำระหว่างถ้วย close-up" },
+      { time:"3–7s", text:"ตัดสินใจ: เทมากแค่ไหน? ถ้วยไหนใหญ่กว่า?", visual:"เด็กตั้งใจ — เติม ตวง เปรียบเทียบ" },
+      { time:"8–13s", text:"ควบคุมกล้ามเนื้อมือ + ฝึกสมาธิ", visual:"น้ำกระเด็น — เด็กหัวเราะ ปรับมือ" },
+      { time:"14–19s", text:"ลองผิด ลองถูก — นี่คือวิทยาศาสตร์จริงๆ", visual:"เด็กพบว่าน้ำล้น — หยุด สังเกต" },
+      { time:"20–25s", text:"Summer Camp @ Daisy — เล่นอย่างนักวิทยาศาสตร์", visual:"ภาพรวมสวน — เด็กที่สถานีต่างๆ" },
+      { time:"26–28s", text:"ครูอิ๋ฟอธิบายให้ฟังทุกสัปดาห์ 📚", visual:"End card: @khunkruif" }
+    ],
+    props:["กะละมัง/ชามพลาสติกระดับเด็ก (ในสวน)","ถ้วยตวง กรวย ที่กรอง ภาชนะขนาดต่างๆ","เด็กใส่ผ้ากันเปื้อนหรือชุดสบายๆ","แสงธรรมชาติ — เช้าดีที่สุด (8:30–10:00น.)","ฉากหลังสวน (ไม่ต้องมีป้ายแบรนด์)"],
+    shoot_notes:["จับช่วงค้นพบ: ตอนเด็กหยุดและคิด ไม่ใช่แค่ตอนสาดน้ำ","ภาพ close-up มือ > ภาพ wide — มือเล่าเรื่อง","ถ่ายให้ได้ 4–5 คลิปที่ใช้ได้","ห้ามมือผู้ใหญ่ชี้นำเด็ก — ปล่อยให้เล่นเอง"],
+    warnings:["ห้ามพากย์เสียง — ตัวอักษรบนหน้าจอเล่าเรื่องแทน"],
+    music:"สนุก แต่มีสมาธิ — ไม่มีเนื้อร้อง Lo-fi หรือ percussive เบาๆ",
+    captions:{
+      tiktok:"เวลาลูกเล่นน้ำ อย่าดูแค่ว่า 'เปียกหมดแล้ว' — ดูว่าลูกกำลังฝึกอะไรอยู่ต่างหาก 💧\n\nการเล่นน้ำสอนเรื่อง: การตัดสินใจ · การควบคุมกล้ามเนื้อมือ · เหตุและผล · ความอดทน\n\nนี่คือเหตุผลที่ Summer Camp ของเราใช้น้ำเป็นศูนย์กลางทุกวัน 🌿\n\n#ครูอิ๋ฟ #พัฒนาการเด็ก #waterplay #เล่นน้ำ #เด็กปฐมวัย #EYFS #SummerCamp #daisynursery",
+      instagram:"เวลาลูกเล่นน้ำ อย่าดูแค่ว่า 'เปียกหมดแล้ว' — ดูว่าลูกกำลังฝึกอะไรอยู่ต่างหาก 💧\n\nการเล่นน้ำสอนเรื่อง: การตัดสินใจ · การควบคุมกล้ามเนื้อมือ · เหตุและผล · ความอดทน\n\n#ครูอิ๋ฟ #พัฒนาการเด็ก #waterplay #EYFS #SummerCamp",
+      "youtube-shorts":"เล่นน้ำ = สมองทำงาน | ครูอิ๋ฟอธิบาย\n\nการเล่นน้ำสอนเรื่อง: การตัดสินใจ · กล้ามเนื้อมือ · เหตุและผล · ความอดทน\n\n#shorts #ครูอิ๋ฟ #พัฒนาการเด็ก"
+    },
+    status:"brief-ready"
+  },
+  {
+    id:"2026-06-22-daisy", date:"2026-06-22", slot:"daisy",
+    format:"carousel", platforms:["instagram","facebook","red"],
+    concept:"Summer Camp at Daisy —\nWhat we prepared before 8am",
+    hook:"Before the children arrived.",
+    slide_list:[
+      { slide:"1 — Cover", visual:"Wide garden — fully set up, no children. Morning light.", text:'"Before the children arrived." / 7:45am · Daisy Summer Camp' },
+      { slide:"2 — Water station", visual:"Close-up of tubs at child height — different containers laid out", text:'"Water exploration station" / Measuring · pouring · cause and effect' },
+      { slide:"3 — Mud kitchen", visual:"Mud kitchen — sticks, leaves, small bowls arranged", text:'"Mud kitchen" / Texture · imagination · messy play (the good kind)' },
+      { slide:"4 — Quiet corner", visual:"Low mats under shade — books open, cushions", text:'"A quiet corner, too" / Not every child wants to splash. We make space for everyone.' },
+      { slide:"5 — Teachers", visual:"Teachers setting up (candid) — filling tubs, adjusting trays", text:'"Ready by 8." / Every morning at Daisy starts before it starts.' },
+      { slide:"6 — CTA", visual:"First child arriving — eyes wide. Genuine reaction, not staged.", text:'"Then they arrive." / Open enrolments for Term 1 2026–27 · Link in bio' }
+    ],
+    props:["Garden set up before 8am (shoot BTS setup first)","Teal Daisy aprons visible but not dominant","Morning light — essential, do NOT shoot in harsh afternoon sun","Teachers natural, not posing for camera"],
+    shoot_notes:["Shoot the empty garden FIRST (before 8am), then children arriving separately","Slide 1 (empty garden) is the hero shot — spend time on framing and light","Slide 6 (first child) is the emotional payoff — genuine reaction only","Need 8–10 stills total for editor to choose 6"],
+    warnings:["No person speaks to camera for Daisy — editorial / school brand","No voiceover"],
+    music:"Calm, purposeful. Morning ambient or soft acoustic. No lyrics.",
+    captions:{
+      instagram:"Before the children arrive, we set the stage. 🌿\n\nEvery morning at Daisy Summer Camp starts at 7:45 — water stations filled, sensory trays laid, the mud kitchen stocked, a quiet reading corner ready for whoever needs it.\n\nBy 8am, the garden is waiting.\n\nDaisy International Nursery · Bangkok · British EYFS · Ages 1–6\n\n#DaisyNursery #SummerCamp #BangkokNursery #EYFS #PlayBasedLearning #EarlyYears #BangkokExpat",
+      facebook:"Before the children arrive, we set the stage. 🌿\n\nEvery morning at Daisy Summer Camp starts before 8am. The water stations are filled, the sensory trays are laid, the mud kitchen is stocked, and a quiet reading corner is ready for whoever needs it.\n\nThis is what play-based learning looks like in practice — thoughtful preparation, so the children can explore freely.\n\nDaisy International Nursery · Sukhumvit 34, Bangkok · British EYFS · Ages 1–6\n\nEnquire about September enrolment: link in bio.",
+      red:"孩子第一天进来，看到水池区的眼神，真的记住了🥹\n\n今天是 Daisy 夏令营的第一天——曼谷素坤逸34的英式幼儿园，主题是户外探索＋自然水玩\n\n清晨7:45，老师们已经把花园布置好了：\n🌊 水感知区：不同大小的容器、量杯、漏斗\n🌿 泥土厨房：树枝、叶子、小碗小铲\n📚 树荫安静角：书本和软垫\n\n不是每个孩子都想玩水——我们给每种性格都留了空间\n\n#曼谷幼儿园 #英式幼儿园 #夏令营 #EYFS #户外教育 #曼谷expat #曼谷华人"
+    },
+    status:"brief-ready"
+  },
+
+  // ─── JUN 23 ───
+  {
+    id:"2026-06-23-ki", date:"2026-06-23", slot:"ki",
+    format:"carousel", platforms:["tiktok","instagram","youtube-shorts"],
+    concept:"น้ำ 1 ถัง 💧 ทักษะ 3 อย่าง",
+    hook:"สิ่งที่ลูกเรียนรู้จาก Water Play ตามหลัก EYFS",
+    slide_list:[
+      { slide:"1 — Cover", visual:"Close-up มือเด็กจุ้มน้ำ แสงเช้า สวน", text:"น้ำ 1 ถัง 💧 ทักษะ 3 อย่าง\nสิ่งที่ลูกเรียนรู้จาก Water Play ตามหลัก EYFS" },
+      { slide:"2 — ทักษะที่ 1", visual:"เด็กเทน้ำจากเหยือกเล็กใส่ถ้วย ตั้งใจมาก", text:"ทักษะที่ 1: กล้ามเนื้อมือ 🤏\nการเท การตัก การบีบ — ฝึกกล้ามเนื้อนิ้วและข้อมือ" },
+      { slide:"3 — ทักษะที่ 2", visual:"ภาชนะ 2 ใบเคียงกัน เด็กชี้ที่ใบที่เต็มกว่า", text:"ทักษะที่ 2: คณิตศาสตร์ต้น 🔢\nมากกว่า/น้อยกว่า · เต็ม/ว่าง · หนัก/เบา" },
+      { slide:"4 — ทักษะที่ 3", visual:"เด็กหยุด — น้ำล้น — มองดู คิด", text:"ทักษะที่ 3: การแก้ปัญหา 💡\nเมื่อน้ำล้น เด็กต้องหาทางออกเอง — ครูอิ๋ฟไม่บอก" },
+      { slide:"5 — ครูอิ๋ฟพูด", visual:"ครูอิ๋ฟยืนในสวน / ห้องเรียน ท่าทางธรรมชาติ ไม่โพส", text:"ครูอิ๋ฟบอกว่า...\n'Water Play ไม่ใช่แค่กิจกรรม — มันคือหนึ่งในวิธีที่ดีที่สุดในการพัฒนาเด็กปฐมวัย'" },
+      { slide:"6 — CTA", visual:"ภาพรวมสวน Summer Camp เต็มๆ หลายเด็กที่สถานีต่างๆ", text:"Summer Camp @ Daisy กำลังเกิดขึ้นอยู่ตอนนี้ 🌿\nติดตาม @khunkruif สำหรับเทคนิคพัฒนาการเด็กทุกสัปดาห์" }
+    ],
+    props:["กะละมังน้ำระดับเด็กในสวน","ถ้วยตวง เหยือก ที่กรอง กรวย หลายขนาด","แสงเช้า (ไม่ใช่กลางวัน)","ครูอิ๋ฟ: ชุดครูธรรมดา ท่าทางเป็นธรรมชาติ — ไม่โพสให้กล้อง"],
+    shoot_notes:["สไลด์ 2–4: ภาพ hero 1 ภาพต่อทักษะ — ถ่าย tight ที่หน้า + มือ","สไลด์ 5 ครูอิ๋ฟ: ต้องรู้สึก authentic — เหมือนจับได้ขณะอธิบาย ไม่ใช่โพส","สไลด์ 6: ภาพ wide ที่เห็น Summer Camp ทั้งหมด","ถ่ายสีอุ่นสม่ำเสมอทุกสไลด์"],
+    warnings:[],
+    music:"ไม่จำเป็น (carousel) แต่ถ้าทำ Reel ให้ใช้เพลงสบายๆ ไม่มีเนื้อร้อง",
+    captions:{
+      tiktok:"น้ำ 1 ถัง ทักษะ 3 อย่าง 💧\n\nเวลาลูกเล่นน้ำ สิ่งที่เกิดขึ้นในสมองและร่างกายลูกมากกว่าที่เราคิด\n\n#ครูอิ๋ฟ #พัฒนาการเด็ก #waterplay #EYFS #เด็กปฐมวัย #SummerCamp",
+      instagram:"น้ำ 1 ถัง ทักษะ 3 อย่าง 💧\n\nสวัสดีค่ะ ครูอิ๋ฟ — สัปดาห์นี้ Summer Camp ที่ Daisy เราใช้น้ำเป็นศูนย์กลางการเรียนรู้ทุกวัน\n\nกด → ดู 3 ทักษะสำคัญที่ซ่อนอยู่ในการเล่นน้ำธรรมดาๆ ค่ะ\n\n#ครูอิ๋ฟ #พัฒนาการเด็ก #waterplay #EYFS #เด็กปฐมวัย #SummerCamp #การเล่นตามธรรมชาติ",
+      "youtube-shorts":"น้ำ 1 ถัง 3 ทักษะ | ครูอิ๋ฟอธิบาย Water Play\n\n#shorts #ครูอิ๋ฟ #พัฒนาการเด็ก #EYFS"
+    },
+    status:"brief-ready"
+  },
+  {
+    id:"2026-06-23-daisy", date:"2026-06-23", slot:"daisy",
+    format:"video", platforms:["tiktok","instagram","youtube-shorts","red"],
+    concept:"We gave them water.\nThey did the rest.",
+    hook:"We gave them water.",
+    beats:[
+      { time:"0–2s", text:"We gave them water.", visual:"Slow-mo: water being poured into tub" },
+      { time:"3–8s", text:"(no text — let it breathe)", visual:"3 quick cuts: child pouring · child finding overflow · two children at a tub together" },
+      { time:"9–14s", text:"(no text)", visual:"Child's face: pure concentration, then delight when something works" },
+      { time:"15–18s", text:"They did the rest.", visual:"Pull back: full garden — busy, alive, joyful" },
+      { time:"19–22s", text:"@daisynurseryth · Bangkok · EYFS", visual:"Final frame: Daisy logo + handle on teal background" }
+    ],
+    props:["Same garden setup as Jun 22 carousel (can shoot same morning)","No Daisy branded elements during play — branding only on end card","Natural sound preferred: water + children's laughter"],
+    shoot_notes:["Shoot slow-motion for at least 50% of clips (240fps or 120fps)","Money shot: child's face at exact moment of discovery — overflow, splash through sieve","Do NOT direct children. Set up scene and wait.","Shoot at least 2 min of footage — editor needs options"],
+    warnings:["No person speaks to camera for Daisy","No voiceover","Fewer words = more impact for this piece"],
+    music:"Option A: natural sound only (water + laughter) — preferred if footage is strong.\nOption B: clean pop/indie, no lyrics, sounds spontaneous.",
+    captions:{
+      instagram:"We gave them water. They gave us this. 💧\n\nSummer Camp at Daisy — where outdoor play is the curriculum.\n\nBritish EYFS · Bangkok · Ages 1–6 · Open enrolments for Sep 2026 — link in bio.\n\n#DaisyNursery #SummerCamp #WaterPlay #EYFS #BangkokNursery #PlayBasedLearning #EarlyYears",
+      tiktok:"We gave them water. They gave us this. 💧\n\nSummer Camp @daisynurseryth · EYFS · Bangkok\n\n#DaisyNursery #SummerCamp #WaterPlay #EYFS #BangkokNursery",
+      "youtube-shorts":"We gave them water. They did the rest. 💧\nDaisy Summer Camp · Bangkok · EYFS #shorts",
+      red:"我们给了孩子们水。剩下的，他们自己完成了💧\n\n曼谷英式幼儿园夏令营——户外就是课堂\n\n孩子下水就不想出来了——看他们怎么探索、发现、合作\n\n#曼谷幼儿园 #英式幼儿园 #夏令营 #水感知 #EYFS #户外教育 #曼谷expat"
+    },
+    status:"brief-ready"
+  },
+
+  // ─── JUN 24 ───
+  {
+    id:"2026-06-24-ki", date:"2026-06-24", slot:"ki",
+    format:"video", platforms:["tiktok","instagram","youtube-shorts"],
+    concept:"หลังจากพ่อแม่กลับออกไป\nเกิดอะไรขึ้นจริงๆ",
+    hook:"ลูกหยุดร้องไห้เร็วแค่ไหน หลังพ่อแม่กลับออกไป?",
+    beats:[], slide_list:[],
+    props:["ครูอิ๋ฟ on-camera — ท่าทางครูในห้องเรียน หรือ กลางสวน","แสงธรรมชาติ ไม่มีสไตล์สตูดิโอ"],
+    shoot_notes:["Talking-head style — ครูอิ๋ฟพูดตรงกล้อง","First-person, warm, direct — เหมือนเพื่อนคุยกัน","30–45 วินาที"],
+    warnings:["Brief still being written — concept approved, details TBC"],
+    music:"ไม่จำเป็น (talking-head format)",
+    captions:{ tiktok:"ครูบอกความจริงที่พ่อแม่อยากรู้ 👀 #ครูอิ๋ฟ #พัฒนาการเด็ก" },
+    status:"brief-ready"
+  },
+  {
+    id:"2026-06-24-daisy", date:"2026-06-24", slot:"daisy",
+    format:"video", platforms:["tiktok","instagram","youtube-shorts","red"],
+    concept:"Summer at Daisy — outdoor play, water,\nwhy June is our favourite month",
+    hook:"June is our favourite month. Here's why.",
+    beats:[], slide_list:[],
+    props:["Garden with Summer Camp activity in full swing","Morning or late afternoon golden light"],
+    shoot_notes:["B-roll of garden activities — wide + close up mix","Children engaged in water play, exploration, mud kitchen","No presenter, no one looks at camera","End card: @daisynurseryth on teal"],
+    warnings:["No person speaks to camera for Daisy","No voiceover"],
+    music:"Warm, joyful — soft guitar or piano, no lyrics",
+    captions:{
+      instagram:"June at Daisy. Outdoor play, water, sunshine — the kind of learning you can't do inside. 🌿\n\n#DaisyNursery #SummerCamp #BangkokNursery #EYFS",
+      tiktok:"June at Daisy. Outdoor play, water, sunshine — the kind of learning you can't do inside. 🌿\n#DaisyNursery #SummerCamp #EYFS",
+      "youtube-shorts":"Summer at Daisy 🌿 June is our favourite month #shorts",
+      red:"六月是Daisy最喜欢的月份——水玩、阳光、户外，这才是真正的学习 🌿\n\n曼谷英式幼儿园，孩子们在花园里探索、发现、成长\n\n#曼谷幼儿园 #英式早教 #夏令营 #EYFS #户外教育"
+    },
+    status:"brief-ready"
+  },
+
+  // ─── JUN 25 ───
+  {
+    id:"2026-06-25-ki", date:"2026-06-25", slot:"ki",
+    format:"video", platforms:["tiktok","instagram","youtube-shorts"],
+    concept:"ลูกร้องไห้ก่อนไปโรงเรียน —\nสิ่งที่ควรทำ (และไม่ควรทำ)",
+    hook:"ลูกร้องไห้ก่อนไปโรงเรียน? ครูอิ๋ฟบอกว่าอย่าทำสิ่งนี้",
+    beats:[], slide_list:[],
+    props:[], shoot_notes:["Brief not yet written — idea stage only"],
+    warnings:["⚠️ Brief not ready yet — do not shoot"],
+    music:"", captions:{}, status:"idea"
+  },
+  {
+    id:"2026-06-25-daisy", date:"2026-06-25", slot:"daisy",
+    format:"carousel", platforms:["instagram","facebook","red"],
+    concept:"What actually happens after drop-off —\nthe teacher's honest account",
+    hook:"What actually happens after drop-off.",
+    beats:[], slide_list:[],
+    props:["Indoor classroom or garden — natural setting","Teachers interacting with children naturally (post-drop-off)"],
+    shoot_notes:["Candid shots of children settled into morning routine","Focus on calm, engaged children — 10–15 min after drop-off","Teachers should not pose or look at camera"],
+    warnings:["No person speaks to camera for Daisy"],
+    music:"Calm, warm, no lyrics",
+    captions:{
+      instagram:"The honest answer — from the teacher's side of the door. 🚪\n\nSpoiler: they're usually fine within minutes.\n\n#DaisyNursery #SeparationAnxiety #BangkokNursery #EYFS #EarlyYears",
+      facebook:"Every parent who's ever walked away from a crying child at drop-off wonders: how long does it last?\n\nHere's what we see from the other side of the door. 🚪\n\nDaisy International Nursery · Bangkok · British EYFS · Ages 1–6",
+      red:"送孩子进去哭了，老师说：你走了以后，其实是这样的🥹\n\n分离焦虑，父母比孩子更需要适应\n\n#曼谷幼儿园 #育儿 #分离焦虑 #EYFS #曼谷expat"
+    },
+    status:"brief-ready"
+  },
+
+  // ─── JUN 26 ───
+  {
+    id:"2026-06-26-ki", date:"2026-06-26", slot:"ki",
+    format:"carousel", platforms:["tiktok","instagram","youtube-shorts"],
+    concept:"3 กิจกรรมง่ายๆ ที่ทำกับลูกวัย 2–3 ขวบได้เลยวันนี้",
+    hook:"3 กิจกรรม ทำได้วันนี้เลย ไม่ต้องซื้ออะไร",
+    beats:[], slide_list:[],
+    props:[], shoot_notes:["Brief not yet written — idea stage only"],
+    warnings:["⚠️ Brief not ready yet — do not shoot"],
+    music:"", captions:{}, status:"idea"
+  },
+  {
+    id:"2026-06-26-daisy", date:"2026-06-26", slot:"daisy",
+    format:"article", platforms:["website","facebook"],
+    concept:"What Is Play-Based Learning?\nAn EYFS Guide for Parents in Bangkok",
+    hook:"What is play-based learning — and why does it matter more than flashcards?",
+    beats:[], slide_list:[],
+    props:["📝 Article — no shoot required"],
+    shoot_notes:["This is a written article for daisy.school and Facebook","No photography needed this day","Focus shoot efforts on video/carousel content"],
+    warnings:[], music:"", captions:{
+      facebook:"New on daisy.school: What is play-based learning, and why does it matter?\n\nOur guide for parents who want to understand how EYFS works — and why we choose play over worksheets.\n\nLink in bio. 🌿 #DaisyNursery #PlayBasedLearning #EYFS #BangkokNursery"
+    },
+    status:"brief-ready"
+  }
+];
+
+// ─── HELPERS ────────────────────────────────────────────────
+const now = new Date();
+const todayISO = now.toISOString().slice(0,10);
+
+function getDayLabel(iso){
+  const d = new Date(iso+'T00:00:00');
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+}
+function getDayNum(iso){ return new Date(iso+'T00:00:00').getDate(); }
+function getMonthStr(iso){
+  const d = new Date(iso+'T00:00:00');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+}
+
+function ptLabel(pt){ return {tiktok:'TikTok',instagram:'IG',red:'RED',facebook:'FB','youtube-shorts':'YT',website:'Web'}[pt]||pt; }
+function ptChipClass(pt){ return {tiktok:'tiktok',instagram:'ig',red:'red',facebook:'fb','youtube-shorts':'yt',website:'web'}[pt]||''; }
+function fmtChipClass(fmt){ return {video:'video',carousel:'carousel','photo-carousel':'carousel',article:'article','short-video':'video'}[fmt]||'video'; }
+function fmtLabel(fmt){ return {video:'📹 Video',carousel:'🖼 Carousel','photo-carousel':'🖼 Carousel',article:'📝 Article','short-video':'📹 Video'}[fmt]||fmt; }
+
+function copyText(text, btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  }).catch(()=>{
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copied'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─── BRIEF CARD BUILDER ──────────────────────────────────────
+function buildCard(brief){
+  const isKi = brief.slot === 'ki';
+  const cardId = brief.id;
+
+  const card = document.createElement('div');
+  card.className = `brief-card ${isKi?'ki-card':'daisy-card'}${brief.status==='idea'?' empty-card':''}`;
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = `card-header ${isKi?'ki':'daisy'}`;
+
+  const leftCol = document.createElement('div');
+  const badge = document.createElement('span');
+  badge.className = `brand-badge ${isKi?'ki':'daisy'}`;
+  badge.textContent = isKi ? '🌿 ครูอิ๋ฟ' : '🌼 Daisy';
+  leftCol.appendChild(badge);
+
+  const rightCol = document.createElement('div');
+  rightCol.className = 'card-format-chips';
+  const fmtChip = document.createElement('span');
+  fmtChip.className = `fmt-chip ${fmtChipClass(brief.format)}`;
+  fmtChip.textContent = fmtLabel(brief.format);
+  rightCol.appendChild(fmtChip);
+  (brief.platforms||[]).forEach(pt=>{
+    const c = document.createElement('span');
+    c.className = `fmt-chip ${ptChipClass(pt)}`;
+    c.textContent = ptLabel(pt);
+    rightCol.appendChild(c);
+  });
+
+  hdr.appendChild(leftCol);
+  hdr.appendChild(rightCol);
+  card.appendChild(hdr);
+
+  // Concept
+  const concept = document.createElement('div');
+  concept.className = 'card-concept';
+  concept.textContent = brief.concept;
+  card.appendChild(concept);
+
+  // Hook
+  if(brief.hook){
+    const hook = document.createElement('div');
+    hook.className = 'card-hook';
+    hook.textContent = brief.hook;
+    card.appendChild(hook);
+  }
+
+  // If idea — show placeholder
+  if(brief.status === 'idea'){
+    const empty = document.createElement('div');
+    empty.className = 'empty-brief';
+    empty.innerHTML = `<span class="empty-icon">📝</span>Brief not ready yet.<br><small>Concept approved — full shoot brief coming soon.</small>`;
+    card.appendChild(empty);
+    return card;
+  }
+
+  // Tabs
+  const tabs = document.createElement('div');
+  tabs.className = 'card-tabs';
+  const shootTabBtn = document.createElement('button');
+  shootTabBtn.className = 'card-tab active';
+  shootTabBtn.textContent = isKi ? '🎬 ถ่ายทำ' : '🎬 Shoot';
+  const postTabBtn = document.createElement('button');
+  postTabBtn.className = 'card-tab';
+  postTabBtn.textContent = isKi ? '📤 โพสต์' : '📤 Post';
+  tabs.appendChild(shootTabBtn);
+  tabs.appendChild(postTabBtn);
+  card.appendChild(tabs);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'card-body';
+
+  // ── Shoot panel ──
+  const shootPanel = document.createElement('div');
+  shootPanel.className = 'card-panel active';
+
+  // On-screen text beats (video)
+  if(brief.beats && brief.beats.length){
+    const lbl = document.createElement('div');
+    lbl.className = 'subsection-label';
+    lbl.textContent = isKi ? 'ข้อความบนหน้าจอ (On-screen text)' : 'On-screen text beats';
+    shootPanel.appendChild(lbl);
+
+    const tbl = document.createElement('table');
+    tbl.className = 'beats-table';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr><th>${isKi?'เวลา':'Time'}</th><th>${isKi?'ข้อความ':'Text'}</th><th>${isKi?'ภาพ':'Visual'}</th></tr>`;
+    tbl.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    brief.beats.forEach(b=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="beat-time">${b.time}</td><td class="beat-text">${b.text}</td><td class="beat-visual">${b.visual}</td>`;
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    shootPanel.appendChild(tbl);
+  }
+
+  // Slide list (carousel)
+  if(brief.slide_list && brief.slide_list.length){
+    const lbl = document.createElement('div');
+    lbl.className = 'subsection-label';
+    lbl.textContent = isKi ? 'โครงสร้างสไลด์' : 'Slide structure';
+    shootPanel.appendChild(lbl);
+    const ul = document.createElement('ul');
+    ul.className = 'checklist';
+    brief.slide_list.forEach(s=>{
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${s.slide}</strong><br><span style="color:var(--text-3);font-size:0.73rem">${s.visual}</span><br><em style="font-size:0.77rem">${s.text}</em>`;
+      ul.appendChild(li);
+    });
+    shootPanel.appendChild(ul);
+  }
+
+  // Props
+  if(brief.props && brief.props.length){
+    const lbl = document.createElement('div');
+    lbl.className = 'subsection-label';
+    lbl.textContent = isKi ? 'อุปกรณ์ / การจัดฉาก' : 'Props & scene setup';
+    shootPanel.appendChild(lbl);
+    const ul = document.createElement('ul');
+    ul.className = 'checklist';
+    brief.props.forEach(p=>{
+      const li = document.createElement('li');
+      li.textContent = p;
+      ul.appendChild(li);
+    });
+    shootPanel.appendChild(ul);
+  }
+
+  // Shoot notes
+  if(brief.shoot_notes && brief.shoot_notes.length){
+    const lbl = document.createElement('div');
+    lbl.className = 'subsection-label';
+    lbl.textContent = isKi ? 'โน้ตถ่ายทำ' : 'Shoot notes';
+    shootPanel.appendChild(lbl);
+    const ul = document.createElement('ul');
+    ul.className = 'checklist';
+    brief.shoot_notes.forEach(n=>{
+      const li = document.createElement('li');
+      li.className = 'note';
+      li.textContent = n;
+      ul.appendChild(li);
+    });
+    shootPanel.appendChild(ul);
+  }
+
+  // Warnings
+  if(brief.warnings && brief.warnings.length){
+    const ul = document.createElement('ul');
+    ul.className = 'checklist';
+    brief.warnings.forEach(w=>{
+      const li = document.createElement('li');
+      li.className = 'warning';
+      li.textContent = w;
+      ul.appendChild(li);
+    });
+    shootPanel.appendChild(ul);
+  }
+
+  // Music
+  if(brief.music){
+    const m = document.createElement('div');
+    m.className = 'music-box';
+    m.textContent = brief.music;
+    shootPanel.appendChild(m);
+  }
+
+  body.appendChild(shootPanel);
+
+  // ── Post panel ──
+  const postPanel = document.createElement('div');
+  postPanel.className = 'card-panel';
+
+  const caps = brief.captions || {};
+  const capKeys = Object.keys(caps);
+  if(capKeys.length){
+    capKeys.forEach(pt=>{
+      const block = document.createElement('div');
+      block.className = 'platform-caption';
+      const plbl = document.createElement('div');
+      plbl.className = 'platform-label';
+      const pname = document.createElement('span');
+      pname.className = 'platform-name';
+      pname.textContent = ptLabel(pt);
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = 'Copy';
+      copyBtn.onclick = ()=> copyText(caps[pt], copyBtn);
+      plbl.appendChild(pname);
+      plbl.appendChild(copyBtn);
+      const box = document.createElement('div');
+      box.className = 'caption-box';
+      box.textContent = caps[pt];
+      block.appendChild(plbl);
+      block.appendChild(box);
+      postPanel.appendChild(block);
+    });
+  } else {
+    const empty = document.createElement('div');
+    empty.className = 'empty-brief';
+    empty.textContent = 'Captions coming soon.';
+    postPanel.appendChild(empty);
+  }
+
+  body.appendChild(postPanel);
+  card.appendChild(body);
+
+  // Tab switching
+  shootTabBtn.onclick = ()=>{
+    shootTabBtn.classList.add('active'); postTabBtn.classList.remove('active');
+    shootPanel.classList.add('active'); postPanel.classList.remove('active');
+  };
+  postTabBtn.onclick = ()=>{
+    postTabBtn.classList.add('active'); shootTabBtn.classList.remove('active');
+    postPanel.classList.add('active'); shootPanel.classList.remove('active');
+  };
+
+  return card;
+}
+
+// ─── TODAY PAGE ──────────────────────────────────────────────
+function renderToday(){
+  const page = document.getElementById('page-today');
+  page.innerHTML = '';
+
+  const dateLabel = document.createElement('div');
+  dateLabel.className = 'section-label';
+  dateLabel.textContent = getDayLabel(todayISO) + ' ' + getDayNum(todayISO) + ' ' + getMonthStr(todayISO) + ' — Today\'s briefs';
+  page.appendChild(dateLabel);
+
+  const todayBriefs = BRIEFS.filter(b=>b.date===todayISO);
+
+  if(!todayBriefs.length){
+    const msg = document.createElement('div');
+    msg.className = 'empty-brief';
+    msg.style.textAlign='center';
+    msg.style.padding='40px 20px';
+    msg.innerHTML = '<span class="empty-icon">✅</span>No briefs scheduled for today.<br>Check the Week tab for upcoming content.';
+    page.appendChild(msg);
+    return;
+  }
+
+  // KI first
+  const ki = todayBriefs.find(b=>b.slot==='ki');
+  if(ki){
+    const sl = document.createElement('div');
+    sl.className = 'section-label';
+    sl.textContent = 'ครูอิ๋ฟ — TikTok · IG · YouTube Shorts';
+    page.appendChild(sl);
+    page.appendChild(buildCard(ki));
+  }
+
+  // Daisy second
+  const daisy = todayBriefs.find(b=>b.slot==='daisy');
+  if(daisy){
+    const sl = document.createElement('div');
+    sl.className = 'section-label';
+    sl.textContent = 'Daisy International Nursery — TikTok · IG · YT · RED';
+    page.appendChild(sl);
+    page.appendChild(buildCard(daisy));
+  }
+}
+
+// ─── WEEK PAGE ───────────────────────────────────────────────
+let selectedDate = todayISO;
+
+function renderWeek(){
+  const page = document.getElementById('page-week');
+  page.innerHTML = '';
+
+  // Get unique dates
+  const allDates = [...new Set(BRIEFS.map(b=>b.date))].sort();
+
+  // Day strip
+  const strip = document.createElement('div');
+  strip.className = 'day-strip';
+
+  allDates.forEach(d=>{
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (d===selectedDate?' active':'') + (d===todayISO?' today':'');
+    pill.dataset.date = d;
+
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'day-pill-day';
+    dayDiv.textContent = getDayLabel(d).slice(0,3);
+    pill.appendChild(dayDiv);
+
+    const numDiv = document.createElement('div');
+    numDiv.className = 'day-pill-num';
+    numDiv.textContent = getDayNum(d);
+    pill.appendChild(numDiv);
+
+    // Dots
+    const dots = document.createElement('div');
+    dots.className = 'day-pill-dot';
+    const kiItem = BRIEFS.find(b=>b.date===d&&b.slot==='ki');
+    const daisyItem = BRIEFS.find(b=>b.date===d&&b.slot==='daisy');
+    const kiDot = document.createElement('span');
+    kiDot.className = 'dot ' + (kiItem ? 'ki' : 'empty');
+    const daisyDot = document.createElement('span');
+    daisyDot.className = 'dot ' + (daisyItem ? 'daisy' : 'empty');
+    dots.appendChild(kiDot);
+    dots.appendChild(daisyDot);
+    pill.appendChild(dots);
+
+    pill.onclick = ()=>{
+      selectedDate = d;
+      document.querySelectorAll('.day-pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      renderDayBriefs(d, dayContent);
+    };
+    strip.appendChild(pill);
+  });
+  page.appendChild(strip);
+
+  // Day content area
+  const dayContent = document.createElement('div');
+  page.appendChild(dayContent);
+
+  renderDayBriefs(selectedDate, dayContent);
+}
+
+function renderDayBriefs(dateISO, container){
+  container.innerHTML = '';
+
+  const dayBriefs = BRIEFS.filter(b=>b.date===dateISO);
+  if(!dayBriefs.length){
+    container.innerHTML = '<div class="empty-brief" style="text-align:center;padding:30px"><span class="empty-icon">📭</span>No content on this day.</div>';
+    return;
+  }
+
+  const ki = dayBriefs.find(b=>b.slot==='ki');
+  const daisy = dayBriefs.find(b=>b.slot==='daisy');
+
+  if(ki){
+    const sl = document.createElement('div');
+    sl.className = 'section-label';
+    sl.textContent = 'ครูอิ๋ฟ';
+    container.appendChild(sl);
+    container.appendChild(buildCard(ki));
+  }
+  if(daisy){
+    const sl = document.createElement('div');
+    sl.className = 'section-label';
+    sl.textContent = 'Daisy International Nursery';
+    container.appendChild(sl);
+    container.appendChild(buildCard(daisy));
+  }
+}
+
+// ─── BRAND GUIDE PAGE ────────────────────────────────────────
+function renderGuide(){
+  const page = document.getElementById('page-guide');
+  page.innerHTML = '';
+
+  // Workflow
+  const wfSection = document.createElement('div');
+  wfSection.innerHTML = `
+    <div class="section-label" style="margin-bottom:10px">How content gets made</div>
+    <div class="brand-guide-body" style="border-radius:12px;border:1px solid var(--border)">
+      <div class="workflow-steps">
+        <div class="wf-step"><span class="wf-num">1</span><div><strong>Brief ready</strong> — Claude writes the brief. Dee approves it.</div></div>
+        <div class="wf-step"><span class="wf-num">2</span><div><strong>Shoot</strong> — Use this app. Check the Shoot tab for concept, beats, props, notes.</div></div>
+        <div class="wf-step"><span class="wf-num">3</span><div><strong>Edit</strong> — Edit video or select carousel photos. Add on-screen text from the brief.</div></div>
+        <div class="wf-step"><span class="wf-num">4</span><div><strong>Send to Dee for approval</strong> — Dee reviews before anything is posted.</div></div>
+        <div class="wf-step"><span class="wf-num">5</span><div><strong>Post</strong> — Use the Post tab captions. Copy-paste per platform. Dee approves timing.</div></div>
+      </div>
+      <div class="approval-box"><strong>⚠️ Nothing goes live without Dee's explicit approval.</strong> Draft-never-post. Always send to Dee first.</div>
+    </div>
+  `;
+  page.appendChild(wfSection);
+
+  // KI Brand Guide
+  const kiSection = document.createElement('div');
+  kiSection.className = 'brand-guide-section';
+  kiSection.style.marginTop = '20px';
+  kiSection.innerHTML = `
+    <div class="brand-guide-header ki">🌿 ครูอิ๋ฟ — Personal Brand</div>
+    <div class="brand-guide-body">
+      <div class="rule-block">
+        <div class="rule-label">ภาษา / Language</div>
+        <div class="rule-text">ไทย เท่านั้น — ไม่มีอังกฤษในเนื้อหา</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-label">สไตล์การถ่าย / Camera style</div>
+        <div class="rule-text">ครูอิ๋ฟ IS the content — เธอคือคนที่อยู่หน้ากล้อง พูดตรงกล้อง บางครั้งอธิบายในขณะที่เด็กๆ เล่นข้างหลัง</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-label">แพลตฟอร์ม / Platforms</div>
+        <div class="platform-row">
+          <span class="pt-tag tiktok">TikTok @khunkruif</span>
+          <span class="pt-tag ig">IG @khunkruif</span>
+          <span class="pt-tag yt">YT @khunkruif</span>
+        </div>
+      </div>
+      <div class="do-dont">
+        <div class="do-col">
+          <div class="col-label">✓ ทำ</div>
+          <ul>
+            <li>ครูอิ๋ฟพูดตรงกล้อง สบายตา</li>
+            <li>first-person ("ครูอิ๋ฟสังเกตว่า...")</li>
+            <li>เฉพาะเจาะจง — สิ่งที่เห็นในห้องเรียนจริง</li>
+            <li>อบอุ่น ใกล้ชิด เหมือนเพื่อนคุยกัน</li>
+            <li>ข้อความ on-screen ภาษาไทย</li>
+          </ul>
+        </div>
+        <div class="dont-col">
+          <div class="col-label">✗ ห้าม</div>
+          <ul>
+            <li>พากย์เสียง</li>
+            <li>สไตล์โรงเรียน / โฆษณา</li>
+            <li>"ทุกพ่อแม่ต้องรู้!" (clickbait)</li>
+            <li>ภาษาอังกฤษในเนื้อหา</li>
+            <li>ท่าทางโพสให้กล้องมากเกินไป</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  `;
+  page.appendChild(kiSection);
+
+  // Daisy Brand Guide
+  const daisySection = document.createElement('div');
+  daisySection.className = 'brand-guide-section';
+  daisySection.innerHTML = `
+    <div class="brand-guide-header daisy">🌼 Daisy International Nursery — School Brand</div>
+    <div class="brand-guide-body">
+      <div class="rule-block">
+        <div class="rule-label">Language</div>
+        <div class="rule-text">English on all platforms. Chinese (ZH) caption only on RED — same content, different caption. Written by Claude.</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-label">Camera style</div>
+        <div class="rule-text"><strong>No presenter. No one speaks to camera.</strong> Daisy is editorial / institutional. B-roll of children + activities + environment. On-screen text + music carries the video.</div>
+      </div>
+      <div class="rule-block">
+        <div class="rule-label">Platforms</div>
+        <div class="platform-row">
+          <span class="pt-tag tiktok">TikTok @daisynurseryth</span>
+          <span class="pt-tag ig">IG @daisynurseryth</span>
+          <span class="pt-tag yt">YT @DaisyNursery</span>
+          <span class="pt-tag red">RED (ZH caption)</span>
+          <span class="pt-tag fb">Facebook</span>
+          <span class="pt-tag web">daisy.school</span>
+        </div>
+      </div>
+      <div class="do-dont">
+        <div class="do-col">
+          <div class="col-label">✓ Do</div>
+          <ul>
+            <li>B-roll: children engaged, natural, unposed</li>
+            <li>Real moments: discovery, focus, delight</li>
+            <li>Beautiful spaces: garden, light, environment</li>
+            <li>On-screen text in English — minimal, impactful</li>
+            <li>Think: magazine spread, not personal vlog</li>
+          </ul>
+        </div>
+        <div class="dont-col">
+          <div class="col-label">✗ Don't</div>
+          <ul>
+            <li>Anyone speaking to camera</li>
+            <li>Voiceover</li>
+            <li>Staged / posed children</li>
+            <li>Stock-photo vibe</li>
+            <li>Vague: "nurturing environment"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rule-block" style="margin-top:12px">
+        <div class="rule-label">RED (Chinese) — caption only</div>
+        <div class="rule-text">Same photos/video as Daisy EN post. Only the caption is in Chinese. Claude writes the ZH caption — just copy it from the Post tab.</div>
+      </div>
+    </div>
+  `;
+  page.appendChild(daisySection);
+}
+
+// ─── NAV ────────────────────────────────────────────────────
+function showPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.getElementById('weekTheme').textContent = WEEK_THEME.theme;
+document.getElementById('weekDateRange').textContent = WEEK_THEME.dates;
+document.getElementById('headerSub').textContent = 'Team Brief · ' + now.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+renderToday();
+renderWeek();
+renderGuide();
+</script>
+</body>
+</html>
