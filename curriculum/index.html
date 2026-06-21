@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Daisy Curriculum — Team Dashboard</title>
+<style>
+:root {
+  --teal: #1D9E75;
+  --teal-light: #e8f7f2;
+  --teal-mid: #b2e2d1;
+  --amber: #E8A800;
+  --amber-light: #fff8e1;
+  --amber-mid: #fde68a;
+  --green: #0F6E56;
+  --bg: #f2f4f7;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --nav-h: 60px;
+  --header-h: 64px;
+  --roomA: #D85A30;
+  --roomA-light: #fff0eb;
+  --roomA-mid: #fbbf9a;
+  --roomB: #1D9E75;
+  --roomB-light: #e8f7f2;
+  --roomB-mid: #6dd3b5;
+  --radius: 12px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none}
+#app-header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--green);z-index:100;display:flex;align-items:center;padding:0 16px;gap:12px}
+.header-logo{font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.3px}
+.header-logo span{color:var(--amber)}
+.header-theme{font-size:13px;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;white-space:nowrap}
+.header-date{margin-left:auto;font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap}
+main{padding-top:calc(var(--header-h) + 12px);padding-bottom:calc(var(--nav-h) + 12px);min-height:100vh}
+.tab-pane{display:none;padding:0 12px}
+.tab-pane.active{display:block}
+nav#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:#fff;border-top:1px solid var(--border);display:flex;z-index:100}
+nav#bottom-nav button{flex:1;border:none;background:transparent;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;transition:color 0.15s}
+nav#bottom-nav button .nav-icon{font-size:20px;line-height:1}
+nav#bottom-nav button.active{color:var(--teal)}
+nav#bottom-nav button.active .nav-icon{filter:drop-shadow(0 0 4px rgba(29,158,117,0.4))}
+
+/* ===== SECTION LABELS ===== */
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+
+/* ===== WEEK BANNER ===== */
+.week-banner{background:var(--green);color:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:4px}
+.week-banner .wk-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;opacity:0.7}
+.week-banner .wk-theme{font-size:22px;font-weight:800;margin:2px 0 6px;letter-spacing:-0.3px}
+.week-banner .eyfs-pills{display:flex;flex-wrap:wrap;gap:5px}
+.week-banner .eyfs-pill{font-size:11px;background:rgba(255,255,255,0.2);color:#fff;padding:3px 8px;border-radius:20px;font-weight:600}
+
+/* ===== SLOT CARDS ===== */
+.slot-card{background:var(--card);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;box-shadow:var(--shadow)}
+.slot-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.slot-time{font-size:13px;font-weight:700;color:var(--teal);min-width:46px}
+.slot-label{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.slot-eyfs-mini{font-size:11px;color:var(--muted);display:flex;gap:4px;flex-wrap:wrap}
+.slot-chevron{font-size:16px;color:var(--muted);transition:transform 0.2s;margin-left:auto;flex-shrink:0}
+.slot-card.open .slot-chevron{transform:rotate(180deg)}
+.slot-body{display:none;padding:0 14px 14px}
+.slot-card.open .slot-body{display:block}
+.slot-note{font-size:12px;color:#8B4513;background:#fff8f0;border-left:3px solid var(--amber);padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:10px;font-weight:500}
+.rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:360px){.rooms-grid{grid-template-columns:1fr}}
+.room-card{border-radius:10px;padding:10px 12px}
+.room-card.roomA{background:var(--roomA-light);border:1.5px solid var(--roomA-mid)}
+.room-card.roomB{background:var(--roomB-light);border:1.5px solid var(--roomB-mid)}
+.room-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;margin-bottom:6px}
+.room-badge.A{color:var(--roomA)}
+.room-badge.B{color:var(--roomB)}
+.room-badge::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.room-badge.A::before{background:var(--roomA)}
+.room-badge.B::before{background:var(--roomB)}
+.room-activity{font-size:13px;color:var(--text);line-height:1.4;margin-bottom:6px}
+.room-vocab{font-size:11px;color:var(--muted)}
+.room-vocab strong{color:var(--text)}
+.room-materials{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.room-materials strong{color:var(--text);display:block;margin-bottom:2px}
+
+/* Activity 2 highlight */
+.slot-card.activity2 .slot-header{background:linear-gradient(90deg,#f0fdf9,#fff)}
+.slot-card.activity2 .slot-time{color:var(--green)}
+.slot-card.activity2 .slot-label::before{content:'⭐ ';font-size:12px}
+
+/* Allergy warning */
+.allergy-warning{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#991b1b;font-weight:600;display:flex;align-items:center;gap:8px}
+
+/* ===== WEEK TAB ===== */
+.day-strip{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.day-strip::-webkit-scrollbar{display:none}
+.day-pill{flex-shrink:0;padding:8px 14px;border-radius:30px;background:var(--card);border:1.5px solid var(--border);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;text-align:center;line-height:1.2}
+.day-pill .dp-day{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.day-pill .dp-act{display:block;font-size:10px;margin-top:2px}
+.day-pill.active{background:var(--teal);border-color:var(--teal);color:#fff}
+.day-pill.today-marker{border-color:var(--amber);color:var(--amber)}
+.day-pill.today-marker.active{background:var(--teal);color:#fff}
+.day-brief-card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:8px}
+.day-brief-card h3{font-size:16px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.act2-badge{font-size:12px;background:var(--teal-light);color:var(--green);padding:3px 8px;border-radius:20px;font-weight:700}
+.mini-rooms{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mini-room{border-radius:8px;padding:8px 10px;font-size:12px}
+.mini-room.A{background:var(--roomA-light);border:1px solid var(--roomA-mid)}
+.mini-room.B{background:var(--roomB-light);border:1px solid var(--roomB-mid)}
+.mini-room-label{font-weight:700;font-size:11px;margin-bottom:3px}
+.mini-room.A .mini-room-label{color:var(--roomA)}
+.mini-room.B .mini-room-label{color:var(--roomB)}
+.mini-room-text{color:var(--text);line-height:1.4}
+.vocab-row{margin-top:8px;font-size:12px;color:var(--muted)}
+.vocab-row strong{color:var(--text)}
+.vocab-tag{display:inline-block;background:var(--bg);border-radius:4px;padding:2px 6px;margin:2px 3px 2px 0;font-size:11px;color:var(--text)}
+
+/* ===== TERM TAB ===== */
+.term-group-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin:16px 0 8px;padding-left:2px}
+.week-card{background:var(--card);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);border-left:4px solid var(--border)}
+.week-card.confirmed{border-left-color:var(--teal)}
+.week-card.draft{border-left-color:var(--border)}
+.week-card.current{border-left-color:var(--amber);background:#fffdf5}
+.week-card.break-week{border-left-color:#ef4444;background:#fff5f5;opacity:0.8}
+.week-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.week-dates{font-size:12px;color:var(--muted);font-weight:600}
+.status-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.status-badge.confirmed{background:var(--teal-light);color:var(--green)}
+.status-badge.draft{background:#f3f4f6;color:var(--muted)}
+.status-badge.current{background:var(--amber-light);color:#92400e}
+.status-badge.break{background:#fee2e2;color:#991b1b}
+.week-theme-name{font-size:15px;font-weight:700;margin:4px 0}
+.week-eyfs-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.week-eyfs-tag{font-size:10px;background:var(--bg);color:var(--muted);padding:2px 7px;border-radius:10px;font-weight:600}
+.week-holiday-note{font-size:11px;color:#dc2626;margin-top:6px;font-weight:500}
+.week-notes-text{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+/* ===== PREP TAB ===== */
+.prep-section{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.prep-section h3{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.checklist{list-style:none}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.4;cursor:pointer}
+.checklist li:last-child{border-bottom:none}
+.checklist li .cb{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.checklist li.done .cb{background:var(--teal);border-color:var(--teal);color:#fff}
+.checklist li.done .cb::after{content:'✓';font-size:12px;font-weight:700}
+.checklist li.done .cb-text{text-decoration:line-through;color:var(--muted)}
+.cb-text{flex:1}
+.cb-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0;align-self:flex-start;margin-top:2px}
+.cb-tag.A{background:var(--roomA-light);color:var(--roomA)}
+.cb-tag.B{background:var(--roomB-light);color:var(--roomB)}
+.cb-tag.both{background:var(--bg);color:var(--muted)}
+.vocab-table{width:100%;border-collapse:collapse}
+.vocab-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);padding:5px 8px;background:var(--bg);border-radius:6px}
+.vocab-table td{font-size:12px;padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+.vocab-table td:first-child{font-weight:600;color:var(--text);min-width:100px}
+.vocab-table td:last-child{color:var(--muted)}
+.eye-note{background:#fff8e1;border:1.5px solid var(--amber);border-radius:10px;padding:10px 12px;font-size:12px;color:#78350f;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.eye-note .icon{font-size:18px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<header id="app-header">
+  <div class="header-logo">Daisy <span>Curriculum</span></div>
+  <div class="header-theme" id="header-theme-label"></div>
+  <div class="header-date" id="header-date-label"></div>
+</header>
+
+<main>
+  <div id="tab-today" class="tab-pane"></div>
+  <div id="tab-week" class="tab-pane"></div>
+  <div id="tab-term" class="tab-pane"></div>
+  <div id="tab-prep" class="tab-pane"></div>
+</main>
+
+<nav id="bottom-nav">
+  <button onclick="switchTab('today')" id="nav-today">
+    <span class="nav-icon">📋</span>Today
+  </button>
+  <button onclick="switchTab('week')" id="nav-week">
+    <span class="nav-icon">📅</span>Week
+  </button>
+  <button onclick="switchTab('term')" id="nav-term">
+    <span class="nav-icon">📆</span>Term
+  </button>
+  <button onclick="switchTab('prep')" id="nav-prep">
+    <span class="nav-icon">🧰</span>Prep
+  </button>
+</nav>
+
+<script>
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function getToday() {
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+const TODAY = getToday();
+
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+function fmtWeekRange(start, end) {
+  return fmtDate(start) + ' – ' + fmtDate(end);
+}
+function getDayName(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB',{weekday:'long'});
+}
+
+// ─── TERM DATA ────────────────────────────────────────────────────────────────
+const TERM_DATA = [
+  {week_id:"2026-W26",week_start:"2026-06-22",week_end:"2026-06-26",term:"Term 3",theme:"Summer Camp",theme_type:"seasonal",eyfs_focus:["Physical Development","Understanding the World","Communication & Language"],public_holidays:[],notes:"Outdoor adventure, water exploration, nature. Water Play (Mon), Sensory (Tue), Wiggle Wonder (Wed), Art & Craft (Thu), Cooking (Fri).",status:"confirmed"},
+  {week_id:"2026-W27",week_start:"2026-06-29",week_end:"2026-07-03",term:"Term 3",theme:"Under the Sea",theme_type:"topic",eyfs_focus:["Understanding the World","Expressive Arts & Design","Mathematics"],public_holidays:[],notes:"Ocean creatures, water sensory play, blue/green palette, fishy art. Monday Water Play rotation pairs perfectly with ocean theme.",status:"confirmed"},
+  {week_id:"2026-W28",week_start:"2026-07-06",week_end:"2026-07-10",term:"Term 3",theme:"Mini Beasts",theme_type:"topic",eyfs_focus:["Understanding the World","Physical Development","Literacy"],public_holidays:[],notes:"Bugs, butterflies, worms. Garden exploration. Minibeast hunt outdoors.",status:"draft"},
+  {week_id:"2026-W29",week_start:"2026-07-13",week_end:"2026-07-17",term:"Term 3",theme:"Plants & Growing Things",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Personal, Social & Emotional Development"],public_holidays:[],notes:"Seeds, roots, what plants need. Plant-a-seed activity (take home). Connects to Friday Cooking.",status:"draft"},
+  {week_id:"2026-W30",week_start:"2026-07-20",week_end:"2026-07-24",term:"Term 3",theme:"Celebrations",theme_type:"transition",eyfs_focus:["Expressive Arts & Design","Communication & Language","Personal, Social & Emotional Development"],public_holidays:[],notes:"End-of-term wrap. Sharing what we learned. Certificates, photos for parents.",status:"draft"},
+  {week_id:"2026-W31",week_start:"2026-07-27",week_end:"2026-07-31",term:"Term 3",theme:"Plants & Growing Things (cont.)",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Physical Development"],public_holidays:["2026-07-27 — Staff Prep Day (no class)","2026-07-28 — King's Birthday (closed)"],notes:"Jul 27 Staff Prep. Jul 28 public holiday. 3-day week. Yellow theme connection.",status:"draft"},
+  {week_id:"2026-W37",week_start:"2026-09-07",week_end:"2026-09-11",term:"Term 1 (2026–27)",theme:"All About Me",theme_type:"transition",eyfs_focus:["Personal, Social & Emotional Development","Communication & Language","Physical Development"],public_holidays:[],notes:"First week. Settling-in focus. Self-portraits, name activities, classroom familiarisation.",status:"draft"},
+  {week_id:"2026-W38",week_start:"2026-09-14",week_end:"2026-09-18",term:"Term 1 (2026–27)",theme:"My Family",theme_type:"topic",eyfs_focus:["Personal, Social & Emotional Development","Communication & Language","Literacy"],public_holidays:[],notes:"Family trees, photos from home, family role play.",status:"draft"},
+  {week_id:"2026-W39",week_start:"2026-09-21",week_end:"2026-09-25",term:"Term 1 (2026–27)",theme:"Friendship",theme_type:"topic",eyfs_focus:["Personal, Social & Emotional Development","Communication & Language","Expressive Arts & Design"],public_holidays:[],notes:"Being a good friend, kindness, pair activities, friendship bracelets craft.",status:"draft"},
+  {week_id:"2026-W40",week_start:"2026-09-28",week_end:"2026-10-02",term:"Term 1 (2026–27)",theme:"People Who Help Us",theme_type:"topic",eyfs_focus:["Understanding the World","Communication & Language","Personal, Social & Emotional Development"],public_holidays:[],notes:"Doctors, firefighters, teachers. Role play corner, visit invitation if possible.",status:"draft"},
+  {week_id:"2026-W41",week_start:"2026-10-05",week_end:"2026-10-09",term:"Term 1 (2026–27)",theme:"Transport",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Physical Development"],public_holidays:[],notes:"Vehicles, how we travel, maps. Construction corner = roads + vehicles.",status:"draft"},
+  {week_id:"2026-W43",week_start:"2026-10-19",week_end:"2026-10-23",term:"Term 1 (2026–27)",theme:"Weather",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Expressive Arts & Design"],public_holidays:["2026-10-23 — Chulalongkorn Day (closed). Plan for 4-day week."],notes:"Rain, sunshine, wind, thunder. Weather chart all week.",status:"draft"},
+  {week_id:"2026-W44",week_start:"2026-10-26",week_end:"2026-10-30",term:"Term 1 (2026–27)",theme:"Halloween",theme_type:"seasonal",eyfs_focus:["Expressive Arts & Design","Communication & Language","Physical Development"],public_holidays:[],notes:"Pumpkins, spiders, bats — fun not scary. Costume day Fri 30 Oct. Pumpkin painting.",status:"draft"},
+  {week_id:"2026-W46",week_start:"2026-11-09",week_end:"2026-11-13",term:"Term 1 (2026–27)",theme:"Space & Stars",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Expressive Arts & Design"],public_holidays:[],notes:"Planets, stars, moon. Black paper starscape art.",status:"draft"},
+  {week_id:"2026-W47",week_start:"2026-11-16",week_end:"2026-11-20",term:"Term 1 (2026–27)",theme:"Food & Cooking",theme_type:"topic",eyfs_focus:["Understanding the World","Mathematics","Physical Development"],public_holidays:[],notes:"Connects to Friday Cooking slot all week. International foods.",status:"draft"},
+  {week_id:"2026-W48",week_start:"2026-11-23",week_end:"2026-11-27",term:"Term 1 (2026–27)",theme:"Loy Krathong",theme_type:"seasonal",eyfs_focus:["Expressive Arts & Design","Understanding the World","Personal, Social & Emotional Development"],public_holidays:["2026-11-25 — Loy Krathong Day (⭐ special event, classes as usual)"],notes:"Loy Krathong confirmed 25 Nov 2026. Krathong making Thu, banana-coconut cooking Fri, music & movement Wed.",status:"confirmed"},
+  {week_id:"2026-W49",week_start:"2026-11-30",week_end:"2026-12-04",term:"Term 1 (2026–27)",theme:"Christmas Week 1",theme_type:"seasonal",eyfs_focus:["Expressive Arts & Design","Communication & Language","Personal, Social & Emotional Development"],public_holidays:["2026-12-05 — Father's Day / National Day (following Monday)"],notes:"Decorations, gift-making, winter sensory. Dec 5 = Father's Day — check if school adjusts.",status:"draft"},
+  {week_id:"2026-W50",week_start:"2026-12-07",week_end:"2026-12-11",term:"Term 1 (2026–27)",theme:"Christmas Week 2",theme_type:"seasonal",eyfs_focus:["Expressive Arts & Design","Literacy","Communication & Language"],public_holidays:["2026-12-10 — Constitution Day"],notes:"Story, carols, card-making, wrapping gifts for parents. Dec 10 = Constitution Day.",status:"draft"},
+  {week_id:"2026-W51",week_start:"2026-12-14",week_end:"2026-12-18",term:"Term 1 (2026–27)",theme:"Christmas Week 3 — End of Term",theme_type:"seasonal",eyfs_focus:["Expressive Arts & Design","Personal, Social & Emotional Development","Communication & Language"],public_holidays:[],notes:"Last week. End-of-term celebration, parent event, Christmas concert/show.",status:"draft"},
+  {week_id:"2026-BREAK-CHRISTMAS",week_start:"2026-12-21",week_end:"2027-01-08",term:"Christmas Break",theme:null,theme_type:"break",eyfs_focus:[],public_holidays:["2026-12-25 Christmas Day","2026-12-31 New Year's Eve","2027-01-01 New Year's Day"],notes:"Dee to confirm exact dates.",status:"draft"}
+];
+
+// ─── WEEK & DAY DATA ──────────────────────────────────────────────────────────
+const CURRENT_WEEK = TERM_DATA.find(w => w.week_start <= TODAY && w.week_end >= TODAY) || TERM_DATA[0];
+
+const DAYS_DATA = {
+  '2026-06-22': {
+    activity2: 'Water Play',
+    emoji: '💧',
+    roomA: {
+      concept: 'Sensory water exploration',
+      detail: 'Children explore water tubs freely — pouring, filling, splashing. Narrate what they do. "You\'re pouring! The water is cold!"',
+      vocab: ['water','splash','pour','wet','float','more','again'],
+      materials: ['3 small water tubs','Measuring cups','Funnels','Rubber ducks','Sponges','Towels (1 per child)','Waterproof aprons']
+    },
+    roomB: {
+      concept: 'Float & Sink Investigation',
+      detail: 'Children predict then test: does this float or sink? Record on whiteboard. Extension: Can you make the plasticine float?',
+      vocab: ['float','sink','predict','investigate','heavy','light','surface'],
+      materials: ['2 large water tubs','Cork, stone, leaf, key, sponge, ping pong ball','FLOAT / SINK labels','Whiteboard + marker','Plasticine (extension)','Waterproof aprons']
+    },
+    stem_project: {
+      label: 'STEM: Float & Sink Recordings',
+      detail: 'Room B draws results on recording sheet — which objects floated, which sank. "Can you make it float?" challenge with plasticine.'
+    }
+  },
+  '2026-06-23': {
+    activity2: 'Sensory Play',
+    emoji: '🌿',
+    roomA: {
+      concept: 'Summer nature sensory tray',
+      detail: 'Tray with sand, soil, leaves, grass, small stones. Let children touch, smell, move materials. Narrate textures.',
+      vocab: ['soft','rough','smooth','wet','dry','texture','feel','smell'],
+      materials: ['Sensory trays (3)','Sand','Soil','Leaves + grass','Small stones','Flower petals','Scoops + spoons']
+    },
+    roomB: {
+      concept: 'Mud kitchen + nature texture hunt',
+      detail: 'Half group in mud kitchen (mixing, cooking play). Half on texture hunt in garden — collect, sort, describe items.',
+      vocab: ['texture','compare','similar','different','describe','rough','smooth','natural'],
+      materials: ['Mud kitchen setup','Natural materials: bark, moss, seeds','Sorting trays','Magnifying glasses','Description cards: smooth / rough / hard / soft']
+    },
+    stem_project: {
+      label: 'STEM: Texture Sorting & Description',
+      detail: 'Room B creates a class "texture book" — stick findings on paper and label with texture words. Encourage writing attempts.'
+    }
+  },
+  '2026-06-24': {
+    activity2: 'Wiggle Wonder',
+    emoji: '🏃',
+    roomA: {
+      concept: 'Movement songs & ribbon wands',
+      detail: 'Action songs with movement (fast/slow, big/small). Ribbon wands for free movement to music. Follow-the-leader game.',
+      vocab: ['jump','wiggle','fast','slow','stop','big','small','dance'],
+      materials: ['Ribbon wands (1 per child)','Bluetooth speaker','Action song playlist','Hula hoops (for stepping game)']
+    },
+    roomB: {
+      concept: 'Outdoor obstacle course',
+      detail: 'Balance beam, crawl tunnel, stepping stones, jump pads. Children time each other. Introduce directional language.',
+      vocab: ['balance','crawl','roll','over','under','through','around','forwards','backwards'],
+      materials: ['Balance beam','Crawl tunnel','Stepping stones','Jump pads','Cones','Stopwatch']
+    },
+    stem_project: {
+      label: 'STEM: Body & Movement Challenge',
+      detail: 'Room B designs their own obstacle course challenge — draw on whiteboard, test it, adjust. Problem-solving through physical design.'
+    }
+  },
+  '2026-06-25': {
+    activity2: 'Art & Craft',
+    emoji: '🎨',
+    roomA: {
+      concept: 'Leaf printing',
+      detail: 'Paint leaves with rollers, press onto paper. Explore colours, shapes, prints. "What shape is this leaf?" "What colour?"',
+      vocab: ['colour','paint','press','print','leaf','shape','beautiful','make'],
+      materials: ['Large leaves (various)','Washable paint (green, yellow, brown)','Rollers','White paper','Aprons','Water tubs for rinsing']
+    },
+    roomB: {
+      concept: 'Summer Camp nature collage + banner',
+      detail: 'Contribute panels to a class "Summer Camp" banner using natural materials. Plan, arrange, glue. Each child adds their name.',
+      vocab: ['collage','arrange','natural materials','texture','pattern','create','design'],
+      materials: ['Large backing paper for banner','Dried flowers, leaves, seeds, bark','PVA glue + spreaders','Scissors','Markers for names','Paint (optional)']
+    },
+    stem_project: {
+      label: 'STEM: Pattern & Design',
+      detail: 'Room B arranges and rearranges materials before gluing — exploring pattern, symmetry, balance. Discuss choices: "Why did you put that there?"'
+    }
+  },
+  '2026-06-26': {
+    activity2: 'Cooking',
+    emoji: '🍓',
+    roomA: {
+      concept: 'Fruit tasting + infused water',
+      detail: 'Taste different fruits — name them, describe. Add sliced fruit to water jugs. "Does the water taste different now?"',
+      vocab: ['taste','sweet','sour','fruit','water','more','yummy','try'],
+      materials: ['Fruit selection: strawberry, mango, watermelon, lime','Plastic knives (age-appropriate)','Jugs + water','Cups','Cutting boards','Allergy register ⚠️']
+    },
+    roomB: {
+      concept: 'Camp trail mix',
+      detail: 'Follow simple picture recipe: measure, mix, taste. Discuss: healthy choices, ingredients, where food comes from.',
+      vocab: ['measure','mix','recipe','ingredients','healthy','share','estimate','more than/less than'],
+      materials: ['Oats, raisins, dried mango, seeds, honey','Measuring cups + spoons','Mixing bowls','Small bags for take-home','Picture recipe card','Allergy register ⚠️']
+    },
+    stem_project: {
+      label: 'STEM: Measurement & Recipe',
+      detail: 'Room B practises measuring — "Is this a big spoon or small spoon of raisins?" Estimate, measure, compare amounts. Record on tally chart.'
+    }
+  }
+};
+
+// ─── FIXED SCHEDULE ───────────────────────────────────────────────────────────
+function getSchedule(dateISO) {
+  const day = DAYS_DATA[dateISO] || null;
+  const act2Label = day ? `Activity 2: ${day.activity2} ${day.emoji}` : 'Activity 2';
+
+  return [
+    {
+      time: '08:00', label: 'Drop Off & Free Play', duration: 60,
+      eyfs: ['PSED','PD'],
+      note: '⚠️ Take register by 08:30. Check allergy board before 09:30 snack.',
+      roomA: { activity: 'Free exploration of indoor/outdoor spaces. Treasure baskets, soft play, cosy corner. Greet each child warmly at the door.', vocab: [] },
+      roomB: { activity: 'Self-directed indoor play — books corner, construction, name writing trays. Greet children at gate.', vocab: [] }
+    },
+    {
+      time: '09:00', label: 'Circle Time', duration: 30,
+      eyfs: ['C&L','PSED','Literacy'],
+      note: 'Keep Room A circle under 15 minutes — short & energetic.',
+      roomA: { activity: 'Song + weather chart. Introduce today\'s theme with a prop or picture. Big movements, call-and-response.', vocab: ['today','weather','ready'] },
+      roomB: { activity: 'Calendar & weather. Introduce theme question of the day. Mind-map on whiteboard. Encourage full sentences.', vocab: ['predict','investigate','question'] }
+    },
+    {
+      time: '09:30', label: 'Snack', duration: 30,
+      eyfs: ['PD','PSED','C&L'],
+      note: '⚠️ CHECK ALLERGY REGISTER BEFORE SERVING. Self-serve with support for Room A.',
+      roomA: { activity: 'Self-serve snack with support. Practice language: "more please", "finished", "thank you".', vocab: ['more','please','finished','thank you'] },
+      roomB: { activity: 'Independent snack. Encourage table conversation about theme. "What are we doing today?"', vocab: [] }
+    },
+    {
+      time: '10:00', label: 'Outdoor Play', duration: 30,
+      eyfs: ['PD','UTW'],
+      note: '☀️ Sun cream check. Hats essential. Water bottles out.',
+      roomA: { activity: 'Garden free play. Check space is set up for Activity 2. Sun hats on.', vocab: [] },
+      roomB: { activity: 'Structured outdoor exploration. Brief walk-through of Activity 2 stations. Children preview the setup.', vocab: [] }
+    },
+    {
+      time: '10:30', label: act2Label, duration: 60,
+      eyfs: ['UTW','Maths','PD','EAD'],
+      activity2: true,
+      note: null,
+      roomA: day ? { activity: day.roomA.detail, vocab: day.roomA.vocab, materials: day.roomA.materials } : { activity: 'See day plan.', vocab: [] },
+      roomB: day ? { activity: day.roomB.detail, vocab: day.roomB.vocab, materials: day.roomB.materials } : { activity: 'See day plan.', vocab: [] }
+    },
+    {
+      time: '11:30', label: 'Lunch', duration: 60,
+      eyfs: ['PD','PSED','C&L'],
+      note: '⚠️ ALL children wash hands before lunch. Check allergy register.',
+      roomA: { activity: 'Supported eating. Name food items. Praise independence with cutlery.', vocab: ['eat','hungry','more','finished'] },
+      roomB: { activity: 'Independent eating. Encourage conversation: "What\'s your favourite? Why?"', vocab: [] }
+    },
+    {
+      time: '12:00', label: 'Nap Prep / Wind Down', duration: 30,
+      eyfs: ['PD','PSED'],
+      note: 'Soft music. Low lights. Calm voices only.',
+      roomA: { activity: 'Teeth brushing support. Nappy check if needed. Transition to sleep mats. Settle each child individually.', vocab: [] },
+      roomB: { activity: 'Tidy up. Quiet transition — stories on mat, quiet breathing. Get rest mats/cushions out.', vocab: [] }
+    },
+    {
+      time: '12:30', label: 'Room A: Nap · Room B: Quiet Rest', duration: 30,
+      eyfs: ['PD','PSED'],
+      note: 'Room B: no sleeping — quiet books and puzzles only on mats.',
+      roomA: { activity: 'Sleep time. 1 teacher supervises at all times. Quiet music only. No talking above a whisper.', vocab: [] },
+      roomB: { activity: 'Quiet rest on mats — soft books, simple puzzles. Calm music. Teachers check in 1:1.', vocab: [] }
+    },
+    {
+      time: '13:00', label: 'Room B: STEM / Project Work', duration: 75,
+      eyfs: ['Maths','UTW','Literacy','EAD'],
+      note: 'Room A still napping — keep corridor quiet. One teacher stays with Room A.',
+      roomA: { activity: '(Napping — supervised by 1 teacher throughout)', vocab: [] },
+      roomB: day && day.stem_project ? { activity: day.stem_project.detail, vocab: [] } : { activity: 'Deep-dive extension of Activity 2. Small group or individual focus.', vocab: [] },
+      roomBLabel: day && day.stem_project ? day.stem_project.label : 'STEM / Project'
+    },
+    {
+      time: '14:15', label: 'Wake Up & Transition', duration: 15,
+      eyfs: ['PD','PSED'],
+      note: 'Gentle transition. No rushing.',
+      roomA: { activity: 'Gentle wake-up. Nappy check. Transition out of sleep space. Offer water.', vocab: [] },
+      roomB: { activity: 'Tidy project materials. Pack away. Transition to snack area.', vocab: [] }
+    },
+    {
+      time: '14:30', label: 'Afternoon Snack + Free Play', duration: 30,
+      eyfs: ['PD','PSED','C&L'],
+      note: 'Note any parent pick-up timing requests. Confirm handover plan.',
+      roomA: { activity: 'Afternoon snack. Free play in merged space if staffing allows.', vocab: [] },
+      roomB: { activity: 'Afternoon snack. Free choice — outdoor or indoor.', vocab: [] }
+    },
+    {
+      time: '15:00', label: 'Pick Up', duration: 0,
+      eyfs: [],
+      note: 'Share 1 observation per child with parents at handover if possible.',
+      roomA: { activity: 'Parent handover. Share observation from the day.', vocab: [] },
+      roomB: { activity: 'Parent handover. Share observation. Ensure all belongings are packed.', vocab: [] }
+    }
+  ];
+}
+
+// ─── RENDER: TODAY ────────────────────────────────────────────────────────────
+function renderToday() {
+  const container = document.getElementById('tab-today');
+  const schedule = getSchedule(TODAY);
+  const dayName = getDayName(TODAY);
+  const dayData = DAYS_DATA[TODAY];
+
+  let html = '';
+
+  // Week banner
+  html += `<div class="week-banner">
+    <div class="wk-label">Week ${CURRENT_WEEK.week_id.replace('2026-','')}</div>
+    <div class="wk-theme">${CURRENT_WEEK.theme}</div>
+    <div class="eyfs-pills">
+      ${CURRENT_WEEK.eyfs_focus.map(e=>`<span class="eyfs-pill">${e}</span>`).join('')}
+    </div>
+  </div>`;
+
+  html += `<div class="section-label">${dayName}, ${fmtDate(TODAY)}</div>`;
+
+  // Allergy warning
+  html += `<div class="allergy-warning">⚠️ Check allergy register before snack (09:30) and lunch (11:30).</div>`;
+
+  // Slot cards
+  schedule.forEach((slot, i) => {
+    const isAct2 = slot.activity2;
+    const hasBody = true;
+    const eyfsStr = slot.eyfs.join(' · ');
+
+    html += `<div class="slot-card${isAct2?' activity2':''}" id="slot-${i}">
+      <div class="slot-header" onclick="toggleSlot(${i})">
+        <div class="slot-time">${slot.time}</div>
+        <div style="flex:1">
+          <div class="slot-label">${slot.label}</div>
+          ${eyfsStr ? `<div class="slot-eyfs-mini">${slot.eyfs.map(e=>`<span>${e}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="slot-chevron">⌄</div>
+      </div>
+      <div class="slot-body">
+        ${slot.note ? `<div class="slot-note">${slot.note}</div>` : ''}
+        <div class="rooms-grid">
+          <div class="room-card roomA">
+            <div class="room-badge A">Room A · Toddlers</div>
+            <div class="room-activity">${slot.roomA.activity}</div>
+            ${slot.roomA.materials ? `<div class="room-materials"><strong>Materials</strong>${slot.roomA.materials.join(' · ')}</div>` : ''}
+            ${slot.roomA.vocab && slot.roomA.vocab.length ? `<div class="room-vocab"><strong>Vocab: </strong>${slot.roomA.vocab.map(v=>`<em>${v}</em>`).join(', ')}</div>` : ''}
+          </div>
+          <div class="room-card roomB">
+            <div class="room-badge B">Room B · Preschool</div>
+            ${slot.roomBLabel ? `<div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:4px">${slot.roomBLabel}</div>` : ''}
+            <div class="room-activity">${slot.roomB.activity}</div>
+            ${slot.roomB.materials ? `<div class="room-materials"><strong>Materials</strong>${slot.roomB.materials.join(' · ')}</div>` : ''}
+            ${slot.roomB.vocab && slot.roomB.vocab.length ? `<div class="room-vocab"><strong>Vocab: </strong>${slot.roomB.vocab.map(v=>`<em>${v}</em>`).join(', ')}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // Auto-open Activity 2 slot (10:30)
+  const act2 = document.querySelector('.slot-card.activity2');
+  if (act2) act2.classList.add('open');
+}
+
+function toggleSlot(i) {
+  const card = document.getElementById('slot-' + i);
+  card.classList.toggle('open');
+}
+
+// ─── RENDER: WEEK ─────────────────────────────────────────────────────────────
+let activeDay = TODAY;
+
+function renderWeek() {
+  const container = document.getElementById('tab-week');
+
+  // Build day list for current week
+  const days = [];
+  const startDate = new Date(CURRENT_WEEK.week_start + 'T00:00:00');
+  const ACT2 = ['Water Play','Sensory Play','Wiggle Wonder','Art & Craft','Cooking'];
+  const ACT2_EMOJI = ['💧','🌿','🏃','🎨','🍓'];
+
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    const iso = d.toISOString().split('T')[0];
+    days.push({ iso, dayName: ['Mon','Tue','Wed','Thu','Fri'][i], act2: ACT2[i], emoji: ACT2_EMOJI[i] });
+  }
+
+  let html = `<div class="week-banner">
+    <div class="wk-label">${CURRENT_WEEK.term}</div>
+    <div class="wk-theme">${CURRENT_WEEK.theme}</div>
+    <div class="eyfs-pills">
+      ${CURRENT_WEEK.eyfs_focus.map(e=>`<span class="eyfs-pill">${e}</span>`).join('')}
+    </div>
+  </div>`;
+
+  html += `<div class="day-strip" id="day-strip">`;
+  days.forEach(day => {
+    const isToday = day.iso === TODAY;
+    const isActive = day.iso === activeDay;
+    html += `<div class="day-pill${isActive?' active':''}${isToday&&!isActive?' today-marker':''}" onclick="selectDay('${day.iso}')">
+      <span class="dp-day">${day.dayName}</span>
+      <span class="dp-act">${day.emoji}</span>
+    </div>`;
+  });
+  html += `</div><div id="day-brief-area"></div>`;
+
+  container.innerHTML = html;
+  renderDayBrief(activeDay);
+}
+
+function selectDay(iso) {
+  activeDay = iso;
+  document.querySelectorAll('.day-pill').forEach((p,i) => {
+    const days = [];
+    const startDate = new Date(CURRENT_WEEK.week_start + 'T00:00:00');
+    for (let j=0;j<5;j++){const d=new Date(startDate);d.setDate(d.getDate()+j);days.push(d.toISOString().split('T')[0]);}
+    p.classList.toggle('active', days[i] === iso);
+  });
+  renderDayBrief(iso);
+}
+
+function renderDayBrief(iso) {
+  const area = document.getElementById('day-brief-area');
+  if (!area) return;
+  const day = DAYS_DATA[iso];
+  const ACT2_FULL = ['Water Play','Sensory Play','Wiggle Wonder','Art & Craft','Cooking'];
+  const ACT2_EMOJI = ['💧','🌿','🏃','🎨','🍓'];
+  const d = new Date(iso + 'T00:00:00');
+  const dayIdx = d.getDay() - 1; // Mon=0
+  const act2Name = ACT2_FULL[dayIdx] || 'Activity 2';
+  const act2Emoji = ACT2_EMOJI[dayIdx] || '⭐';
+  const dayFullName = getDayName(iso);
+
+  let html = `<div class="section-label">${dayFullName}, ${fmtDate(iso)}</div>`;
+
+  if (day) {
+    html += `<div class="day-brief-card">
+      <h3>${act2Emoji} ${day.activity2} <span class="act2-badge">10:30 Activity 2</span></h3>
+      <div class="mini-rooms">
+        <div class="mini-room A">
+          <div class="mini-room-label">Room A · Toddlers</div>
+          <div class="mini-room-text"><strong>${day.roomA.concept}</strong><br>${day.roomA.detail}</div>
+          ${day.roomA.vocab.length ? `<div class="vocab-row" style="margin-top:6px"><strong>Vocab: </strong>${day.roomA.vocab.map(v=>`<span class="vocab-tag">${v}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="mini-room B">
+          <div class="mini-room-label">Room B · Preschool</div>
+          <div class="mini-room-text"><strong>${day.roomB.concept}</strong><br>${day.roomB.detail}</div>
+          ${day.roomB.vocab.length ? `<div class="vocab-row" style="margin-top:6px"><strong>Vocab: </strong>${day.roomB.vocab.map(v=>`<span class="vocab-tag">${v}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+
+    if (day.stem_project) {
+      html += `<div class="day-brief-card">
+        <h3>🔬 13:00 — ${day.stem_project.label}</h3>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5">${day.stem_project.detail}</p>
+        <div style="font-size:11px;color:var(--roomA);margin-top:8px;font-weight:600">Room A is napping during this block — keep corridor quiet.</div>
+      </div>`;
+    }
+
+    // Materials summary
+    const allMats = [...(day.roomA.materials||[]).map(m=>({m,room:'A'})), ...(day.roomB.materials||[]).map(m=>({m,room:'B'}))];
+    if (allMats.length) {
+      html += `<div class="day-brief-card">
+        <h3>🧰 Materials for Today</h3>
+        <ul class="checklist" id="day-mats">`;
+      allMats.forEach((item, idx) => {
+        html += `<li id="dmat-${idx}" onclick="toggleDayMat(${idx})">
+          <div class="cb"></div>
+          <span class="cb-text">${item.m}</span>
+          <span class="cb-tag ${item.room}">${item.room==='A'?'Room A':'Room B'}</span>
+        </li>`;
+      });
+      html += `</ul></div>`;
+    }
+  } else {
+    html += `<div class="day-brief-card">
+      <h3>${act2Emoji} ${act2Name} <span class="act2-badge">10:30 Activity 2</span></h3>
+      <p style="font-size:13px;color:var(--muted)">Detailed plan not yet added for this day. Follow the fixed schedule and adapt the ${act2Name} activity to the week's theme: <strong>${CURRENT_WEEK.theme}</strong>.</p>
+    </div>`;
+  }
+  area.innerHTML = html;
+}
+
+function toggleDayMat(idx) {
+  document.getElementById('dmat-'+idx)?.classList.toggle('done');
+}
+
+// ─── RENDER: TERM ─────────────────────────────────────────────────────────────
+function renderTerm() {
+  const container = document.getElementById('tab-term');
+  let html = `<div class="section-label">Term Calendar 2026</div>
+  <div class="eye-note"><span class="icon">⚠️</span>Holiday and school closure dates are fixed. Do not plan lessons on 🔴 public holidays or 🔵 nursery breaks.</div>`;
+
+  let lastTerm = '';
+  TERM_DATA.forEach(week => {
+    if (week.term !== lastTerm) {
+      html += `<div class="term-group-label">${week.term}</div>`;
+      lastTerm = week.term;
+    }
+    const isCurrent = week.week_start <= TODAY && week.week_end >= TODAY;
+    const isBreak = week.theme_type === 'break';
+    const statusClass = isBreak ? 'break' : isCurrent ? 'current' : week.status;
+    const badgeClass = isBreak ? 'break' : isCurrent ? 'current' : week.status;
+    const badgeText = isBreak ? '🔵 Break' : isCurrent ? '📍 This week' : week.status === 'confirmed' ? '✓ Confirmed' : 'Draft';
+
+    html += `<div class="week-card ${statusClass}">
+      <div class="week-card-header">
+        <div>
+          <div class="week-dates">${fmtWeekRange(week.week_start, week.week_end)}</div>
+          <div class="week-theme-name">${week.theme || 'School Break'}</div>
+        </div>
+        <span class="status-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      ${week.eyfs_focus.length ? `<div class="week-eyfs-tags">${week.eyfs_focus.map(e=>`<span class="week-eyfs-tag">${e}</span>`).join('')}</div>` : ''}
+      ${week.public_holidays.length ? `<div class="week-holiday-note">🔴 ${week.public_holidays.join('<br>🔴 ')}</div>` : ''}
+      ${week.notes ? `<div class="week-notes-text">${week.notes}</div>` : ''}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ─── RENDER: PREP ─────────────────────────────────────────────────────────────
+function renderPrep() {
+  const container = document.getElementById('tab-prep');
+  const day = DAYS_DATA[TODAY];
+  const dayName = getDayName(TODAY);
+
+  let html = `<div class="section-label">Today — ${dayName}, ${fmtDate(TODAY)}</div>`;
+
+  html += `<div class="allergy-warning">⚠️ Allergy register: verify BEFORE snack (09:30) and lunch (11:30). Register not pre-populated — Dee must confirm.</div>`;
+
+  // Before-8am setup
+  html += `<div class="prep-section"><h3>🌅 Set Up Before 8:00am</h3><ul class="checklist" id="setup-list">`;
+  const setupItems = [
+    {text:'Register printed and on clipboard',room:'both'},
+    {text:'Allergy board updated and visible at snack/lunch table',room:'both'},
+    {text:'Sun cream station ready (pump bottles, roll-call sheet)',room:'both'},
+    {text:'Water bottles labelled and filled',room:'both'},
+    ...(day ? day.roomA.materials.filter(m=>!m.includes('⚠️')).map(m=>({text:m, room:'A'})) : []),
+    ...(day ? day.roomB.materials.filter(m=>!m.includes('⚠️')).map(m=>({text:m, room:'B'})) : []),
+    {text:'Outdoor space walked and hazard-checked',room:'both'},
+    {text:'Nap mats in position (Room A)',room:'A'},
+    {text:'STEM / project materials laid out on tables (Room B)',room:'B'},
+  ];
+  setupItems.forEach((item, i) => {
+    html += `<li id="prep-${i}" onclick="togglePrep(${i})">
+      <div class="cb"></div>
+      <span class="cb-text">${item.text}</span>
+      <span class="cb-tag ${item.room}">${item.room==='A'?'Room A':item.room==='B'?'Room B':'Both'}</span>
+    </li>`;
+  });
+  html += `</ul></div>`;
+
+  // Key vocabulary this week
+  html += `<div class="prep-section"><h3>📚 Key Vocabulary — Summer Camp Week</h3>`;
+  const allDays = Object.values(DAYS_DATA);
+  const roomAVocab = [...new Set(allDays.flatMap(d=>d.roomA.vocab))];
+  const roomBVocab = [...new Set(allDays.flatMap(d=>d.roomB.vocab))];
+
+  html += `<table class="vocab-table">
+    <tr><th>Room A · Toddlers</th><th>Room B · Preschool</th></tr>
+    <tr>
+      <td style="vertical-align:top">${roomAVocab.map(v=>`<span class="vocab-tag">${v}</span>`).join(' ')}</td>
+      <td style="vertical-align:top">${roomBVocab.map(v=>`<span class="vocab-tag">${v}</span>`).join(' ')}</td>
+    </tr>
+  </table></div>`;
+
+  // Activity 2 rotation reminder
+  html += `<div class="prep-section"><h3>📅 This Week — Activity 2 Rotation</h3>
+  <table class="vocab-table">
+    <tr><th>Day</th><th>Activity</th></tr>
+    <tr><td>Monday</td><td>💧 Water Play</td></tr>
+    <tr><td>Tuesday</td><td>🌿 Sensory Play</td></tr>
+    <tr><td>Wednesday</td><td>🏃 Wiggle Wonder</td></tr>
+    <tr><td>Thursday</td><td>🎨 Art & Craft</td></tr>
+    <tr><td>Friday</td><td>🍓 Cooking</td></tr>
+  </table></div>`;
+
+  // EYFS areas reminder
+  html += `<div class="prep-section"><h3>📋 EYFS 7 Areas — Quick Reference</h3>
+  <table class="vocab-table">
+    <tr><th>Code</th><th>Full Name</th></tr>
+    <tr><td>PSED</td><td>Personal, Social & Emotional Development</td></tr>
+    <tr><td>C&L</td><td>Communication & Language</td></tr>
+    <tr><td>PD</td><td>Physical Development</td></tr>
+    <tr><td>Literacy</td><td>Literacy</td></tr>
+    <tr><td>Maths</td><td>Mathematics</td></tr>
+    <tr><td>UTW</td><td>Understanding the World</td></tr>
+    <tr><td>EAD</td><td>Expressive Arts & Design</td></tr>
+  </table></div>`;
+
+  container.innerHTML = html;
+}
+
+function togglePrep(i) {
+  document.getElementById('prep-'+i)?.classList.toggle('done');
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+const TABS = ['today','week','term','prep'];
+function switchTab(tab) {
+  TABS.forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    const btn = document.getElementById('nav-'+t);
+    if (btn) btn.classList.toggle('active', t===tab);
+  });
+  window.scrollTo(0,0);
+}
+
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+function initHeader() {
+  document.getElementById('header-theme-label').textContent = CURRENT_WEEK.theme;
+  const dayName = getDayName(TODAY);
+  const shortDay = dayName.slice(0,3);
+  const d = new Date(TODAY + 'T00:00:00');
+  const dd = d.getDate(), mo = d.toLocaleDateString('en-GB',{month:'short'});
+  document.getElementById('header-date-label').textContent = `${shortDay} ${dd} ${mo}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+initHeader();
+renderToday();
+renderWeek();
+renderTerm();
+renderPrep();
+switchTab('today');
+</script>
+</body>
+</html>
